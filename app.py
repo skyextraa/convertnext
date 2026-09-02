@@ -150,13 +150,16 @@ def youtube_common_options():
     }
     extractor_args = {"youtube": youtube_args}
 
-    if provider_url:
+    # Prefer the local bgutil generation script on Render. This avoids making
+    # the web process depend on a second background HTTP server staying alive.
+    # The script is compiled during the Render build.
+    if script_path.exists():
+        extractor_args["youtubepot-bgutilscript"] = {
+            "server_home": [str(_pot_provider_server_home())],
+        }
+    elif provider_url:
         extractor_args["youtubepot-bgutilhttp"] = {
             "base_url": [provider_url],
-        }
-    elif script_path.exists():
-        extractor_args["youtubepot-bgutilscript"] = {
-            "script_path": [str(script_path)],
         }
 
     return {

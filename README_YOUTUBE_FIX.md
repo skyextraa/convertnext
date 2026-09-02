@@ -17,7 +17,13 @@ The setup script installs Python dependencies, downloads bgutil 1.3.2, and compi
 
 ## Render
 
-`render.yaml` installs Node 22, FFmpeg, bgutil 1.3.2, and starts the HTTP PO-token provider before Gunicorn.
+Render installs Node 22, FFmpeg, bgutil 1.3.2, and compiles the provider during the build.
+The web service uses the bgutil **script provider** directly instead of depending on a
+second background HTTP process on port 4416. This avoids the `Error reaching GET
+http://127.0.0.1:4416/ping` failure seen when the background provider exits.
+
+The Render environment sets `BGUTIL_SERVER_HOME=/opt/bgutil-ytdlp-pot-provider/server`.
+After deployment, a verbose yt-dlp run should show a `bgutil:script-node-1.3.2` provider.
 
 ## What to look for in a verbose yt-dlp log
 
