@@ -87,8 +87,12 @@
           </div>
           {% if turnstile_site_key %}
           <div class="turnstile-wrap">
-            <div class="cf-turnstile" data-sitekey="{{  }}" data-theme="light" data-size="flexible" data-action="youtube-download"></div>
-          </div>
+           <div class="cf-turnstile"
+     data-sitekey="{{ turnstile_site_key }}"
+     data-theme="light"
+     data-size="flexible"
+     data-action="youtube-download">
+</div>
           {% else %}
           <div class="turnstile-missing">Human verification is not configured yet.</div>
           {% endif %}

@@ -434,7 +434,11 @@ def index():
             {"@type": "Organization", "name": SITE_NAME, "url": current_site_url() + "/", "logo": current_site_url() + url_for("static", filename="convert-nest-mark.png")},
         ],
     }
-    return render_template("index.html", home_schema=home_schema)
+    return render_template(
+    "index.html",
+    home_schema=home_schema,
+    turnstile_site_key=os.environ.get("TURNSTILE_SITE_KEY", "").strip()
+)
 
 
 def render_tool_page(kind):
