@@ -1,6 +1,11 @@
 <!doctype html>
 <html lang="en">
 <head>
+<script
+  src="https://challenges.cloudflare.com/turnstile/v0/api.js"
+  async
+  defer>
+</script>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>ConvertNest — YouTube to MP3 & MP4, PDF Maker & Online Converters</title>
@@ -87,7 +92,7 @@
           </div>
           {% if turnstile_site_key %}
           <div class="turnstile-wrap">
-            <div class="cf-turnstile" data-sitekey="{{ turnstile_site_key }}" data-theme="light" data-size="flexible" data-action="youtube-download"></div>
+            <div class="cf-turnstile" data-sitekey="{{0x4AAAAAAEk5sAeZo0-lnfpq}}" data-theme="light" data-size="flexible" data-action="youtube-download"></div>
           </div>
           {% else %}
           <div class="turnstile-missing">Human verification is not configured yet.</div>
