@@ -144,18 +144,15 @@ if (ytForm) {
 
     if (!status || !button) return;
 
-    const turnstileToken =
-      form.querySelector('input[name="cf-turnstile-response"]')?.value ||
-      window.convertNestTurnstileToken ||
-      "";
-
-    if (!turnstileToken) {
-      status.textContent = "Please complete the human verification first.";
-      return;
-    }
-
     status.textContent = "Preparing MP3… keep this tab open.";
     button.disabled = true;
+
+    const turnstileToken = form.querySelector('input[name="cf-turnstile-response"]')?.value || window.convertNestTurnstileToken || "";
+    if (!turnstileToken) {
+      status.textContent = "Please complete the human verification first.";
+      button.disabled = false;
+      return;
+    }
 
     try {
       const res = await fetch("/api/youtube/mp3", {
@@ -167,7 +164,7 @@ if (ytForm) {
       status.textContent = "Done — your MP3 download has started.";
       showDownloadAd();
     } catch (err) {
-      status.textContent = err.message || "MP3 conversion failed.";
+      status.textContent = err.message || "MP3 download failed.";
       window.convertNestTurnstileToken = "";
     } finally {
       button.disabled = false;

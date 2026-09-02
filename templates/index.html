@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>ConvertNest — YouTube to MP3 Converter, PDF Maker & Online Tools</title>
-  <meta name="description" content="ConvertNest offers a YouTube to MP3 converter for eligible public videos, plus a free PDF Maker, PDF to JPG and JPG to PDF converters.">
+  <title>ConvertNest — YouTube to MP3, PDF Maker & Online Converters</title>
+  <meta name="description" content="ConvertNest offers a YouTube to MP3 converter for eligible public videos, plus free PDF Maker, PDF to JPG and JPG to PDF tools.">
   <meta name="robots" content="index,follow,max-image-preview:large">
   <link rel="canonical" href="{{ site_url }}{{ url_for('index') }}">
   <meta name="theme-color" content="#0b5cff">
@@ -14,12 +14,12 @@
 
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="ConvertNest">
-  <meta property="og:title" content="ConvertNest — YouTube to MP3 Converter, PDF Maker & Online Tools">
+  <meta property="og:title" content="ConvertNest — YouTube to MP3, PDF Maker & Online Converters">
   <meta property="og:description" content="Simple online YouTube, PDF and image conversion tools.">
   <meta property="og:url" content="{{ site_url }}{{ url_for('index') }}">
   <meta property="og:image" content="{{ site_url }}{{ url_for('static', filename='convert-nest-logo.webp') }}">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="ConvertNest — YouTube to MP3 Converter, PDF Maker & Online Tools">
+  <meta name="twitter:title" content="ConvertNest — YouTube to MP3, PDF Maker & Online Converters">
   <meta name="twitter:description" content="Simple online YouTube, PDF and image conversion tools.">
   <meta name="twitter:image" content="{{ site_url }}{{ url_for('static', filename='convert-nest-logo.webp') }}">
 
@@ -79,7 +79,7 @@
             <h2>YouTube to <b>MP3</b></h2>
           </div>
         </div>
-        <p>Paste an eligible public YouTube link and convert the audio to MP3.</p>
+        <p>Paste an eligible public YouTube link and download the audio as an MP3.</p>
         <form id="ytForm">
           <div class="yt-input-wrap">
             <span>🔗</span>
@@ -100,8 +100,10 @@
           {% else %}
           <div class="turnstile-missing">Human verification is not configured yet.</div>
           {% endif %}
-          <input type="hidden" name="mode" value="mp3">
-          <button class="primary yt-submit" type="submit">Download MP3 →</button>
+          <div class="yt-controls">
+            <input type="hidden" name="mode" value="mp3">
+            <button class="primary yt-submit" type="submit">Download MP3 →</button>
+          </div>
         </form>
         <div class="notice">Only download content you own or have permission to download, and follow YouTube's terms.</div>
         <div class="status" id="ytStatus" aria-live="polite"></div>
@@ -159,7 +161,7 @@
       <h2 id="how-title">Simple in three steps.</h2>
       <div class="steps">
         <div><b>01</b><strong>Paste or upload</strong><p>Give ConvertNest a YouTube link or your document/image file.</p></div>
-        <div><b>02</b><strong>Choose your format</strong><p>Choose MP3, JPG, or PDF depending on the tool.</p></div>
+        <div><b>02</b><strong>Choose your format</strong><p>Pick MP3, JPG, or PDF depending on the tool.</p></div>
         <div><b>03</b><strong>Download</strong><p>Get the processed result through a normal download.</p></div>
       </div>
     </section>

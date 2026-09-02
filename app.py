@@ -4,9 +4,6 @@ import shutil
 import tempfile
 import uuid
 import zipfile
-import subprocess
-import socket
-import atexit
 import json
 from urllib.parse import urlencode
 from urllib.request import Request as UrlRequest, urlopen
@@ -88,80 +85,6 @@ def safe_media_name(info, fallback="youtube-media"):
     return (title or fallback)[:120]
 
 
-def _pot_provider_server_home():
-    configured = os.environ.get("BGUTIL_SERVER_HOME", "").strip()
-    if configured:
-        return Path(configured)
-    return Path(__file__).resolve().parent / "vendor" / "bgutil-ytdlp-pot-provider" / "server"
-
-
-def _pot_provider_script_path():
-    return _pot_provider_server_home() / "build" / "generate_once.js"
-
-
-def _port_is_open(host, port):
-    try:
-        with socket.create_connection((host, port), timeout=0.4):
-            return True
-    except OSError:
-        return False
-
-
-_pot_process = None
-
-def _start_local_pot_provider():
-    """Start the bgutil provider locally when no external provider is configured.
-
-    Local development can start the bgutil HTTP provider when available.
-    Render is configured to use the script provider instead, so it does not depend
-    on a localhost port staying alive beside Gunicorn.
-    """
-    global _pot_process
-    if os.environ.get("YTDL_POT_PROVIDER_URL"):
-        return
-    if os.environ.get("CONVERTNEST_DISABLE_LOCAL_POT") == "1":
-        return
-    server = _pot_provider_server_home()
-    main_js = server / "build" / "main.js"
-    if not main_js.exists() or _port_is_open("127.0.0.1", 4416):
-        return
-    try:
-        log_path = BASE / "bgutil-pot.log"
-        log = open(log_path, "a", encoding="utf-8")
-        _pot_process = subprocess.Popen(
-            ["node", str(main_js), "--port", "4416"],
-            cwd=str(server),
-            stdout=log,
-            stderr=subprocess.STDOUT,
-            creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0),
-        )
-        os.environ["YTDL_POT_PROVIDER_URL"] = "http://127.0.0.1:4416"
-        # Give the provider a moment to bind before the first yt-dlp request.
-        for _ in range(30):
-            if _port_is_open("127.0.0.1", 4416):
-                break
-            if _pot_process.poll() is not None:
-                break
-            import time
-            time.sleep(0.25)
-    except (OSError, FileNotFoundError):
-        # The API will give a precise setup error instead of crashing the web app.
-        pass
-
-
-def _stop_local_pot_provider():
-    global _pot_process
-    if _pot_process and _pot_process.poll() is None:
-        try:
-            _pot_process.terminate()
-        except Exception:
-            pass
-
-
-_start_local_pot_provider()
-atexit.register(_stop_local_pot_provider)
-
-
 def _ffmpeg_path():
     """Return a self-contained FFmpeg executable installed by imageio-ffmpeg.
 
@@ -175,81 +98,26 @@ def _ffmpeg_path():
 
 
 def youtube_common_options():
-    """Options for current YouTube extraction.
+    """Small, predictable yt-dlp configuration for the MP3-only service.
 
-    Current yt-dlp guidance recommends a supported JavaScript runtime plus a PO
-    token provider for the mweb client. The previous build had the provider
-    installed, but its arguments were not passed in the form yt-dlp expects, so
-    the logs showed 'GVS PO Token not provided'.
+    Keep one extraction attempt instead of cycling through several YouTube
+    clients. Repeated client fallbacks made blocked requests slow and caused
+    unnecessary server load. yt-dlp handles the normal YouTube extraction and
+    Node is available for its JavaScript challenge support.
     """
-    provider_url = os.environ.get("YTDL_POT_PROVIDER_URL", "").strip()
-    script_path = _pot_provider_script_path()
-
-    youtube_args = {
-        "player_client": ["mweb", "web_safari", "web_embedded"],
-        "fetch_pot": ["always"],
-        "formats": ["missing_pot"],
-        "pot_trace": ["true"],
-    }
-    extractor_args = {"youtube": youtube_args}
-
-    # On Render use the local bgutil script provider directly. This avoids
-    # depending on a second long-running HTTP process on localhost:4416.
-    # Local development can still use the HTTP provider when explicitly set.
-    if provider_url and os.environ.get("CONVERTNEST_USE_POT_HTTP") == "1":
-        extractor_args["youtubepot-bgutilhttp"] = {
-            "base_url": [provider_url],
-        }
-    elif script_path.exists():
-        extractor_args["youtubepot-bgutilscript"] = {
-            "script_path": [str(script_path)],
-        }
-
     return {
         "quiet": True,
         "no_warnings": False,
         "noplaylist": True,
         "restrictfilenames": True,
-        "retries": 4,
-        "fragment_retries": 4,
+        "retries": 2,
+        "fragment_retries": 2,
         "concurrent_fragment_downloads": 1,
-        "socket_timeout": 30,
+        "socket_timeout": 20,
         "http_chunk_size": 10 * 1024 * 1024,
         "js_runtimes": {"node": {}},
         "ffmpeg_location": _ffmpeg_path(),
-        "extractor_args": extractor_args,
     }
-
-
-
-def extract_youtube_info(url, download=False, extra=None):
-    opts = youtube_common_options()
-    opts["skip_download"] = not download
-    if extra:
-        opts.update(extra)
-    with yt_dlp.YoutubeDL(opts) as ydl:
-        return ydl.extract_info(url, download=download)
-
-
-def download_youtube_with_fallbacks(url, base_opts, clients):
-    """Try clients while preserving the PO-token provider configuration."""
-    last_error = None
-    for client in clients:
-        opts = dict(base_opts)
-        existing = dict(opts.get("extractor_args") or {})
-        youtube_args = dict(existing.get("youtube") or {})
-        youtube_args["player_client"] = [client]
-        existing["youtube"] = youtube_args
-        opts["extractor_args"] = existing
-        try:
-            with yt_dlp.YoutubeDL(opts) as ydl:
-                return ydl.extract_info(url, download=True)
-        except yt_dlp.utils.DownloadError as exc:
-            last_error = exc
-    if last_error:
-        raise last_error
-    raise RuntimeError("No YouTube client was available.")
-
 
 
 def youtube_error_message(exc):
@@ -265,7 +133,7 @@ def youtube_error_message(exc):
     if "geo" in message or "country" in message or "region" in message:
         return "This video is region-restricted and is not available to this server."
     if "po token" in message or "proof of origin" in message or "403" in message or "forbidden" in message:
-        return "YouTube rejected the media stream (HTTP 403). Try another eligible public video. If many different videos fail, update/redeploy the server so yt-dlp and the PO-token provider are rebuilt together."
+        return "YouTube rejected the media stream (HTTP 403). Try another eligible public video. If many different videos fail, YouTube may be restricting automated access from this server."
     if "javascript runtime" in message or "ejs" in message:
         return "YouTube's JavaScript challenge could not be solved. The server needs Node.js and a current yt-dlp EJS setup."
     return "YouTube rejected the download. Try a public video or another quality."
@@ -307,7 +175,7 @@ def tool_schema(seo, path):
                 "@id": current_site_url() + "/#website",
                 "url": current_site_url() + "/",
                 "name": SITE_NAME,
-                "description": "Online PDF, image and eligible video conversion tools.",
+                "description": "Online PDF, image and YouTube MP3 conversion tools.",
             },
             {
                 "@type": "SoftwareApplication",
@@ -415,7 +283,7 @@ def index():
     home_schema = {
         "@context": "https://schema.org",
         "@graph": [
-            {"@type": "WebSite", "@id": current_site_url() + "/#website", "url": current_site_url() + "/", "name": SITE_NAME, "description": "Online PDF, image and eligible video conversion tools."},
+            {"@type": "WebSite", "@id": current_site_url() + "/#website", "url": current_site_url() + "/", "name": SITE_NAME, "description": "Online PDF, image and YouTube MP3 conversion tools."},
             {"@type": "Organization", "name": SITE_NAME, "url": current_site_url() + "/", "logo": current_site_url() + url_for("static", filename="convert-nest-mark.png")},
         ],
     }
@@ -554,11 +422,11 @@ def jpg_to_pdf():
 
 @app.post("/api/youtube/mp3")
 def youtube_mp3():
+    """Download eligible public YouTube audio as an MP3."""
     verified, verification_error = verify_turnstile()
     if not verified:
         return jsonify(error=verification_error), 403
 
-    """Extract the best available YouTube audio and convert it to MP3."""
     url = request.form.get("url", "").strip()
     if not YOUTUBE_RE.match(url):
         return jsonify(error="Enter a valid YouTube URL."), 400
@@ -569,7 +437,7 @@ def youtube_mp3():
     opts = youtube_common_options()
     opts.update({
         "outtmpl": str(job / "%(title).120s.%(ext)s"),
-        "format": "ba[ext=m4a]/ba[ext=webm]/ba[acodec!=none]/b[acodec!=none]",
+        "format": "ba/b[acodec!=none]",
         "max_filesize": 512 * 1024 * 1024,
         "postprocessors": [{
             "key": "FFmpegExtractAudio",
@@ -579,18 +447,20 @@ def youtube_mp3():
     })
 
     try:
-        info = download_youtube_with_fallbacks(
-            url,
-            opts,
-            ["mweb", "web_safari", "web_embedded"],
-        )
-        base = safe_media_name(info, "youtube-audio")
+        with yt_dlp.YoutubeDL(opts) as ydl:
+            info = ydl.extract_info(url, download=True)
 
+        base = safe_media_name(info, "youtube-audio")
         media = next((p for p in job.iterdir() if p.is_file() and p.suffix.lower() == ".mp3"), None)
         if media is None or not media.exists():
             raise RuntimeError("No MP3 file was produced.")
 
-        response = send_file(media, as_attachment=True, download_name=f"{base}.mp3", mimetype="audio/mpeg")
+        response = send_file(
+            media,
+            as_attachment=True,
+            download_name=f"{base}.mp3",
+            mimetype="audio/mpeg",
+        )
         response.call_on_close(lambda: cleanup(job))
         return response
     except yt_dlp.utils.DownloadError as e:
@@ -598,7 +468,7 @@ def youtube_mp3():
         return jsonify(error=youtube_error_message(e)), 400
     except Exception:
         cleanup(job)
-        return jsonify(error="MP3 conversion failed. The video may be unavailable or unsupported."), 500
+        return jsonify(error="MP3 conversion failed. The video may be unavailable, restricted, or temporarily inaccessible."), 500
 
 
 @app.errorhandler(413)

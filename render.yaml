@@ -5,24 +5,14 @@ services:
     plan: free
     buildCommand: >-
       apt-get update &&
-      apt-get install -y ffmpeg curl ca-certificates git build-essential &&
+      apt-get install -y ffmpeg curl ca-certificates &&
       curl -fsSL https://deb.nodesource.com/setup_22.x | bash - &&
       apt-get install -y nodejs &&
-      rm -rf /opt/bgutil-ytdlp-pot-provider &&
-      git clone --depth 1 --branch 1.3.2 https://github.com/Brainicism/bgutil-ytdlp-pot-provider.git /opt/bgutil-ytdlp-pot-provider &&
-      cd /opt/bgutil-ytdlp-pot-provider/server &&
-      npm ci &&
-      npx tsc &&
       pip install -r requirements.txt
-    startCommand: >-
-      bash start_render.sh
+    startCommand: bash start_render.sh
     envVars:
       - key: PYTHON_VERSION
         value: 3.13.5
-      - key: BGUTIL_SERVER_HOME
-        value: /opt/bgutil-ytdlp-pot-provider/server
-      - key: CONVERTNEST_DISABLE_LOCAL_POT
-        value: "1"
       - key: TURNSTILE_SITE_KEY
         sync: false
       - key: TURNSTILE_SECRET_KEY

@@ -1,18 +1,20 @@
-FROM node:22-bookworm-slim
+FROM python:3.13-slim
 
-ENV PYTHONDONTWRITEBYTECODE=1     PYTHONUNBUFFERED=1     PIP_NO_CACHE_DIR=1     BGUTIL_SERVER_HOME=/opt/bgutil-ytdlp-pot-provider/server     CONVERTNEST_DISABLE_LOCAL_POT=1     YTDL_POT_PROVIDER_URL=http://127.0.0.1:4416     CONVERTNEST_USE_POT_HTTP=1
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1
 
-RUN apt-get update     && apt-get install -y --no-install-recommends python3 python3-pip ffmpeg git ca-certificates curl build-essential     && rm -rf /var/lib/apt/lists/*
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends ffmpeg curl ca-certificates \
+    && curl -fsSL https://deb.nodesource.com/setup_22.x | bash - \
+    && apt-get install -y --no-install-recommends nodejs \
+    && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 COPY requirements.txt .
-RUN pip3 install --break-system-packages -r requirements.txt
-
-RUN git clone --depth 1 --branch 1.3.2 https://github.com/Brainicism/bgutil-ytdlp-pot-provider.git /opt/bgutil-ytdlp-pot-provider     && cd /opt/bgutil-ytdlp-pot-provider/server     && npm ci     && npx tsc
+RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
 
-RUN chmod +x /app/start.sh
-
+ENV PORT=8000
 EXPOSE 8000
-CMD ["/app/start.sh"]
+CMD gunicorn --workers 1 --threads 2 --timeout 90 --bind 0.0.0.0:${PORT} app:app
