@@ -152,6 +152,13 @@ if (ytForm) {
     if (meta) meta.textContent = "";
     button.disabled = true;
 
+    const turnstileToken = form.querySelector('input[name="cf-turnstile-response"]')?.value || "";
+    if (!turnstileToken) {
+      status.textContent = "Please complete the human verification first.";
+      button.disabled = false;
+      return;
+    }
+
     try {
       // Download directly instead of making a separate /info request first.
       // This avoids an unnecessary second YouTube extraction request.
@@ -170,6 +177,12 @@ if (ytForm) {
       showDownloadAd();
     } catch (err) {
       status.textContent = err.message || "Download failed.";
+      if (window.turnstile) {
+        const widget = form.querySelector('.cf-turnstile');
+        if (widget && widget.dataset.widgetId) {
+          try { window.turnstile.reset(widget.dataset.widgetId); } catch (_) {}
+        }
+      }
     } finally {
       button.disabled = false;
     }

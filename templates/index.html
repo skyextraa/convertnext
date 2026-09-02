@@ -26,6 +26,7 @@
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
   <script type="application/ld+json">{{ home_schema|tojson }}</script>
   <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2774947817383530" crossorigin="anonymous"></script>
+  {% if turnstile_site_key %}<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>{% endif %}
 </head>
 <body class="sky-page">
   <div class="sky-scene" aria-hidden="true">
@@ -84,6 +85,13 @@
             <span>🔗</span>
             <input class="url-input" type="url" name="url" placeholder="Paste YouTube URL here..." aria-label="YouTube video URL" required>
           </div>
+          {% if turnstile_site_key %}
+          <div class="turnstile-wrap">
+            <div class="cf-turnstile" data-sitekey="{{ turnstile_site_key }}" data-theme="light" data-size="flexible" data-action="youtube-download"></div>
+          </div>
+          {% else %}
+          <div class="turnstile-missing">Human verification is not configured yet.</div>
+          {% endif %}
           <div class="yt-controls">
             <label><span>Format</span>
               <select name="mode" id="ytMode">
@@ -133,19 +141,6 @@
       </div>
 
       <div class="tools">
-        <article class="tool-card featured-tool yt-tool">
-          <div class="tool-icon youtube-icon">▶</div><span class="hot-tag">HOT</span>
-          <h2>YouTube to MP3</h2>
-          <p>Convert eligible public YouTube videos to MP3 audio when you have permission.</p>
-          <a class="tool-btn" href="{{ url_for('youtube_to_mp3_page') }}">Convert to MP3 →</a>
-        </article>
-
-        <article class="tool-card featured-tool yt-tool">
-          <div class="tool-icon youtube-icon">▶</div>
-          <h2>YouTube to MP4</h2>
-          <p>Download eligible public YouTube videos as MP4 in an available quality.</p>
-          <a class="tool-btn" href="{{ url_for('youtube_downloader_page') }}">Download MP4 →</a>
-        </article>
 
         <article class="tool-card featured-tool">
           <div class="tool-icon pdf">PDF</div>

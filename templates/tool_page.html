@@ -22,6 +22,7 @@
   <meta name="twitter:image" content="{{ site_url }}{{ url_for('static', filename='convert-nest-logo.webp') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
   <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2774947817383530" crossorigin="anonymous"></script>
+  {% if turnstile_site_key %}<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>{% endif %}
   <script type="application/ld+json">{{ schema|tojson }}</script>
 </head>
 <body>
@@ -54,6 +55,13 @@
       <form id="ytForm">
         <input class="url-input" type="url" name="url" placeholder="https://youtube.com/watch?v=..." aria-label="YouTube video URL" required>
         <input type="hidden" name="mode" value="{{ 'mp3' if kind == 'youtube-mp3' else 'video' }}">
+        {% if turnstile_site_key %}
+        <div class="turnstile-wrap">
+          <div class="cf-turnstile" data-sitekey="{{ turnstile_site_key }}" data-theme="light" data-size="flexible" data-action="youtube-download"></div>
+        </div>
+        {% else %}
+        <div class="turnstile-missing">Human verification is not configured yet.</div>
+        {% endif %}
         {% if kind == 'youtube-video' %}
         <div class="yt-options"><label>Quality<select name="quality"><option value="360">360p</option><option value="480">480p</option><option value="720" selected>720p</option><option value="1080">1080p</option><option value="best">Best available</option></select></label></div>
         {% else %}<input type="hidden" name="quality" value="best">{% endif %}

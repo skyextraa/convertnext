@@ -122,3 +122,5 @@ footer{background:rgba(4,20,58,.94);backdrop-filter:blur(14px)}
   .youtube-hero-card .yt-submit{grid-column:auto}
   .float-orb{display:none}.sky-panel{padding:30px 22px}
 }
+
+.turnstile-wrap{margin:14px 0 6px;display:flex;justify-content:flex-start;min-height:65px}.turnstile-wrap .cf-turnstile{max-width:100%}.turnstile-missing{margin:14px 0;padding:10px 12px;border:1px solid rgba(220,70,70,.2);border-radius:10px;background:rgba(255,245,245,.8);color:#a33;font-size:13px}

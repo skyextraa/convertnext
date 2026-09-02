@@ -7,6 +7,9 @@ import zipfile
 import subprocess
 import socket
 import atexit
+import json
+from urllib.parse import urlencode
+from urllib.request import Request as UrlRequest, urlopen
 from pathlib import Path
 
 from flask import Flask, render_template, request, send_file, jsonify, Response, url_for
@@ -18,6 +21,46 @@ import imageio_ffmpeg
 
 app = Flask(__name__)
 app.config["MAX_CONTENT_LENGTH"] = 50 * 1024 * 1024
+
+TURNSTILE_SITEVERIFY_URL = "https://challenges.cloudflare.com/turnstile/v0/siteverify"
+
+def verify_turnstile():
+    """Validate the Cloudflare Turnstile token for protected actions.
+
+    The secret key is server-only and must be supplied through the
+    TURNSTILE_SECRET_KEY environment variable. A missing secret intentionally
+    fails closed so YouTube endpoints are never exposed without verification.
+    """
+    secret = os.environ.get("TURNSTILE_SECRET_KEY", "").strip()
+    token = request.form.get("cf-turnstile-response", "").strip()
+
+    if not secret:
+        return False, "Turnstile is not configured on this server. Add TURNSTILE_SECRET_KEY in Render."
+    if not token:
+        return False, "Please complete the human verification before downloading."
+
+    payload = urlencode({
+        "secret": secret,
+        "response": token,
+        "remoteip": request.headers.get("CF-Connecting-IP") or request.remote_addr or "",
+    }).encode("utf-8")
+
+    try:
+        req = UrlRequest(
+            TURNSTILE_SITEVERIFY_URL,
+            data=payload,
+            headers={"Content-Type": "application/x-www-form-urlencoded"},
+            method="POST",
+        )
+        with urlopen(req, timeout=10) as response:
+            result = json.loads(response.read().decode("utf-8"))
+    except Exception:
+        return False, "Human verification could not be checked. Please refresh and try again."
+
+    if result.get("success") is not True:
+        return False, "Human verification failed or expired. Please verify again."
+
+    return True, ""
 
 BASE = Path(tempfile.gettempdir()) / "convertnest"
 BASE.mkdir(exist_ok=True)
@@ -69,9 +112,9 @@ _pot_process = None
 def _start_local_pot_provider():
     """Start the bgutil provider locally when no external provider is configured.
 
-    Render uses its own HTTP provider process. Local Windows/macOS/Linux development
-    uses the same provider package in script mode, but starting the HTTP server here
-    makes local testing behave like production.
+    Local development can start the bgutil HTTP provider when available.
+    Render is configured to use the script provider instead, so it does not depend
+    on a localhost port staying alive beside Gunicorn.
     """
     global _pot_process
     if os.environ.get("YTDL_POT_PROVIDER_URL"):
@@ -150,16 +193,13 @@ def youtube_common_options():
     }
     extractor_args = {"youtube": youtube_args}
 
-    # Prefer the local bgutil generation script on Render. This avoids making
-    # the web process depend on a second background HTTP server staying alive.
-    # The script is compiled during the Render build.
-    if script_path.exists():
-        extractor_args["youtubepot-bgutilscript"] = {
-            "server_home": [str(_pot_provider_server_home())],
-        }
-    elif provider_url:
+    if provider_url:
         extractor_args["youtubepot-bgutilhttp"] = {
             "base_url": [provider_url],
+        }
+    elif script_path.exists():
+        extractor_args["youtubepot-bgutilscript"] = {
+            "script_path": [str(script_path)],
         }
 
     return {
@@ -238,7 +278,11 @@ def current_site_url():
 
 @app.context_processor
 def inject_site_context():
-    return {"site_url": current_site_url(), "site_name": SITE_NAME}
+    return {
+        "site_url": current_site_url(),
+        "site_name": SITE_NAME,
+        "turnstile_site_key": os.environ.get("TURNSTILE_SITE_KEY", "").strip(),
+    }
 
 
 def breadcrumb_schema(name, path):
@@ -526,6 +570,10 @@ def jpg_to_pdf():
 
 @app.post("/api/youtube/info")
 def youtube_info():
+    verified, verification_error = verify_turnstile()
+    if not verified:
+        return jsonify(error=verification_error), 403
+
     url = request.form.get("url", "").strip()
     if not YOUTUBE_RE.match(url):
         return jsonify(error="Enter a valid YouTube URL."), 400
@@ -549,6 +597,10 @@ def youtube_info():
 
 @app.post("/api/youtube")
 def youtube_download():
+    verified, verification_error = verify_turnstile()
+    if not verified:
+        return jsonify(error=verification_error), 403
+
     url = request.form.get("url", "").strip()
     quality = request.form.get("quality", "720").strip()
     if not YOUTUBE_RE.match(url):
@@ -600,6 +652,10 @@ def youtube_download():
 
 @app.post("/api/youtube/mp3")
 def youtube_mp3():
+    verified, verification_error = verify_turnstile()
+    if not verified:
+        return jsonify(error=verification_error), 403
+
     """Extract the best available YouTube audio and convert it to MP3."""
     url = request.form.get("url", "").strip()
     if not YOUTUBE_RE.match(url):

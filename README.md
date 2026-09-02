@@ -38,3 +38,13 @@ After connecting the custom domain, verify the canonical URLs and sitemap in Goo
 ## YouTube extraction reliability
 
 The current build uses Node 22 for yt-dlp EJS challenges and bgutil-ytdlp-pot-provider 1.3.1 for video-bound PO tokens. The primary client is `mweb`, matching current yt-dlp guidance; `web_safari` and `web_embedded` are used as fallbacks. The Render start command waits for the provider health endpoint before starting Gunicorn.
+
+
+## Cloudflare Turnstile
+
+YouTube download endpoints require Cloudflare Turnstile verification. Create a Turnstile widget in Cloudflare, allow your Render hostname and any custom domain, then add these Render environment variables:
+
+- `TURNSTILE_SITE_KEY` — public sitekey used by the browser.
+- `TURNSTILE_SECRET_KEY` — private secret used by Flask for server-side Siteverify validation.
+
+The secret must never be placed in HTML or JavaScript. Turnstile is an anti-abuse layer; it does not override YouTube access restrictions.
