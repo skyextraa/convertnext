@@ -193,11 +193,15 @@ def youtube_common_options():
     }
     extractor_args = {"youtube": youtube_args}
 
+    # Configure BOTH providers when available. The HTTP provider is faster when
+    # its sidecar is healthy, while the script provider is an important fallback
+    # on hosts such as Render where a localhost sidecar can occasionally fail.
+    # yt-dlp can fall back from the HTTP provider to the script provider.
     if provider_url:
         extractor_args["youtubepot-bgutilhttp"] = {
             "base_url": [provider_url],
         }
-    elif script_path.exists():
+    if script_path.exists():
         extractor_args["youtubepot-bgutilscript"] = {
             "script_path": [str(script_path)],
         }

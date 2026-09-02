@@ -20,7 +20,6 @@ services:
       export CONVERTNEST_DISABLE_LOCAL_POT=1 &&
       node /opt/bgutil-ytdlp-pot-provider/server/build/main.js --port 4416 > /tmp/bgutil-pot.log 2>&1 &
       for i in $(seq 1 30); do curl -fsS http://127.0.0.1:4416/ping >/dev/null && break; sleep 1; done;
-      curl -fsS http://127.0.0.1:4416/ping >/dev/null || (cat /tmp/bgutil-pot.log && exit 1);
       export YTDL_POT_PROVIDER_URL=http://127.0.0.1:4416 &&
       exec gunicorn --workers 1 --threads 4 --timeout 900 app:app
     envVars:

@@ -24,3 +24,12 @@ The setup script installs Python dependencies, downloads bgutil 1.3.2, and compi
 A working provider installation should report a bgutil PO-token provider rather than only saying that the GVS PO token is missing. The official provider documentation shows the expected provider registration in verbose output.
 
 No downloader can guarantee every YouTube URL: private, members-only, region-restricted, age-restricted, authenticated, or otherwise unavailable videos may still fail.
+
+
+## Render fallback
+
+The app now registers both the bgutil HTTP provider and the bgutil script provider when
+the files are available. If the localhost HTTP provider cannot be reached, yt-dlp can
+fall back to the compiled `generate_once.js` provider instead of failing immediately.
+The Render start command therefore does not abort the entire web service when the
+sidecar health check is unavailable.
