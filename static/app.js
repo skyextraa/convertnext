@@ -1,3 +1,8 @@
+window.convertNestTurnstileToken = "";
+window.convertNestTurnstileSuccess = function(token) { window.convertNestTurnstileToken = token || ""; };
+window.convertNestTurnstileExpired = function() { window.convertNestTurnstileToken = ""; };
+window.convertNestTurnstileError = function() { window.convertNestTurnstileToken = ""; };
+
 async function downloadResponse(res, fallbackName) {
   const type = res.headers.get("content-type") || "";
 
@@ -152,7 +157,7 @@ if (ytForm) {
     if (meta) meta.textContent = "";
     button.disabled = true;
 
-    const turnstileToken = form.querySelector('input[name="cf-turnstile-response"]')?.value || "";
+    const turnstileToken = form.querySelector('input[name="cf-turnstile-response"]')?.value || window.convertNestTurnstileToken || "";
     if (!turnstileToken) {
       status.textContent = "Please complete the human verification first.";
       button.disabled = false;
@@ -177,12 +182,7 @@ if (ytForm) {
       showDownloadAd();
     } catch (err) {
       status.textContent = err.message || "Download failed.";
-      if (window.turnstile) {
-        const widget = form.querySelector('.cf-turnstile');
-        if (widget && widget.dataset.widgetId) {
-          try { window.turnstile.reset(widget.dataset.widgetId); } catch (_) {}
-        }
-      }
+      window.convertNestTurnstileToken = "";
     } finally {
       button.disabled = false;
     }
