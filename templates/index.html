@@ -58,7 +58,7 @@
       <form id="ytForm">
         <div class="yt-input-wrap"><span>🔗</span><input class="url-input" type="url" name="url" placeholder="Paste YouTube URL here..." aria-label="YouTube video URL" required></div>
         <div class="yt-controls">
-          <label><span>Format</span><select name="mode" id="ytMode"><option value="mp3">Audio (MP3)</option><option value="video" selected>Video (MP4)</option></select></label>
+          <label><span>Format</span><select name="mode" id="ytMode"><option value="mp3" selected>Audio (MP3)</option><option value="video">Video (MP4)</option></select></label>
           <label id="qualityWrap"><span>Quality</span><select name="quality"><option value="360">360p</option><option value="480">480p</option><option value="720" selected>720p</option><option value="1080">1080p</option><option value="best">Best available</option></select></label>
           <button class="primary yt-submit" type="submit">Download <span id="ytButtonLabel">MP4</span> →</button>
         </div>
@@ -69,18 +69,35 @@
     </div>
   </section>
 
+  <div id="downloadAd" class="download-ad" hidden aria-label="Advertisement">
+    <div class="ad-label">ADVERTISEMENT</div>
+    <ins class="adsbygoogle"
+         style="display:block;text-align:center;"
+         data-ad-layout="in-article"
+         data-ad-format="fluid"
+         data-ad-client="ca-pub-2774947817383530"
+         data-ad-slot="1240471571"></ins>
+  </div>
+
   <div class="ad-slot" aria-label="Advertisement">ADVERTISEMENT</div>
 
   <section id="tools" class="tools-section" aria-labelledby="tools-title">
-    <div class="section-heading"><div class="eyebrow">POPULAR TOOLS</div><h2 id="tools-title">Everything you need, <span>in one place.</span></h2><p>Start with YouTube, then handle your everyday PDF and image conversions.</p></div>
+    <div class="section-heading"><div class="eyebrow">POPULAR TOOLS</div><h2 id="tools-title">Your most-used tools, <span>right up front.</span></h2><p>Start with YouTube, then create and convert your documents and images.</p></div>
     <div class="tools">
+      <article class="tool-card featured-tool yt-tool">
+        <div class="tool-icon youtube-icon">▶</div><span class="hot-tag">HOT</span><h2>YouTube to MP3</h2>
+        <p>Convert eligible public YouTube videos to MP3 audio when you have permission.</p><a class="tool-btn" href="{{ url_for('youtube_to_mp3_page') }}">Convert to MP3 →</a>
+      </article>
+      <article class="tool-card featured-tool yt-tool">
+        <div class="tool-icon youtube-icon">▶</div><h2>YouTube to MP4</h2>
+        <p>Download eligible public YouTube videos as MP4 in an available quality.</p><a class="tool-btn" href="{{ url_for('youtube_downloader_page') }}">Download MP4 →</a>
+      </article>
       <article class="tool-card featured-tool">
         <div class="tool-icon pdf">PDF</div><h2>PDF Maker</h2>
-        <p>Combine JPG, PNG, or WEBP images into one PDF.</p><a class="tool-btn" href="{{ url_for('pdf_maker_page') }}">Create PDF →</a>
+        <p>Create one PDF from multiple JPG, PNG, or WEBP images.</p><a class="tool-btn" href="{{ url_for('pdf_maker_page') }}">Create PDF →</a>
       </article>
-      <article class="tool-card"><div class="tool-icon pdf">PDF</div><h2>PDF to JPG</h2><p>Turn PDF pages into high-quality JPG images.</p><a class="tool-btn" href="{{ url_for('pdf_to_jpg_page') }}">Convert now →</a></article>
-      <article class="tool-card"><div class="tool-icon img">JPG</div><h2>JPG to PDF</h2><p>Combine images into a downloadable PDF document.</p><a class="tool-btn" href="{{ url_for('jpg_to_pdf_page') }}">Convert now →</a></article>
-      <article class="tool-card"><div class="tool-icon pdf">ZIP</div><h2>More tools</h2><p>Explore the next ConvertNest converters as they are added.</p><a class="tool-btn" href="#tools">Explore →</a></article>
+      <article class="tool-card"><div class="tool-icon pdf">PDF</div><h2>PDF to JPG</h2><p>Turn PDF pages into high-quality JPG images in a ZIP.</p><a class="tool-btn" href="{{ url_for('pdf_to_jpg_page') }}">Convert now →</a></article>
+      <article class="tool-card"><div class="tool-icon img">JPG</div><h2>JPG to PDF</h2><p>Combine JPG, PNG, or WEBP images into one PDF.</p><a class="tool-btn" href="{{ url_for('jpg_to_pdf_page') }}">Convert now →</a></article>
     </div>
   </section>
 
@@ -105,5 +122,6 @@
 </main>
 <footer><div><strong>ConvertNest</strong><span>Simple online conversion tools.</span></div><span>© 2026 ConvertNest</span></footer>
 <script src="{{ url_for('static', filename='app.js') }}" defer></script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2774947817383530" crossorigin="anonymous"></script>
 </body>
 </html>

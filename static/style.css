@@ -72,3 +72,16 @@ footer{background:rgba(4,20,58,.94);backdrop-filter:blur(14px)}
 @media(max-width:850px){.sky-hero{padding:48px 0}.yt-controls{grid-template-columns:1fr 1fr}.yt-submit{grid-column:1/-1}.tools{grid-template-columns:1fr}.sky-panel{padding:30px 22px}.sky-hero h1{font-size:clamp(44px,12vw,58px);line-height:1.02}.cloud{opacity:.45}.float-orb{display:none}}
 @media(max-width:600px){.youtube-hero-card{padding:20px}.yt-title-row{align-items:flex-start}.youtube-hero-card h2{font-size:23px}.yt-controls{grid-template-columns:1fr}.yt-submit{grid-column:auto}.trust-row{display:none}.sky-hero h1{font-size:clamp(40px,11.5vw,52px);letter-spacing:-.045em}}
 @media(prefers-reduced-motion:reduce){*,*:before,*:after{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+
+/* ConvertNest cleanup: focused tool hierarchy + post-download ad */
+.tools{grid-template-columns:repeat(5,minmax(0,1fr));gap:16px}
+.tool-card{position:relative;min-width:0}
+.yt-tool{border-color:rgba(8,124,255,.28);box-shadow:0 16px 50px rgba(8,124,255,.10)}
+.youtube-icon{background:linear-gradient(145deg,#ff2d55,#ff5b45);color:#fff;font-size:18px}
+.hot-tag{position:absolute;right:18px;top:18px;padding:5px 8px;border-radius:999px;background:#fff0f2;color:#e11d48;font-size:9px;font-weight:900;letter-spacing:.08em}
+.download-ad{max-width:900px;margin:0 auto 38px;padding:18px 18px 22px;border:1px solid rgba(8,124,255,.12);border-radius:18px;background:rgba(255,255,255,.72);backdrop-filter:blur(12px);box-shadow:0 12px 40px rgba(8,58,140,.07)}
+.download-ad[hidden]{display:none}
+.ad-label{text-align:center;color:#94a3b8;font-size:9px;letter-spacing:.16em;margin-bottom:8px}
+@media(max-width:1050px){.tools{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:700px){.tools{grid-template-columns:1fr 1fr}}
+@media(max-width:480px){.tools{grid-template-columns:1fr}}

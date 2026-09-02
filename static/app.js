@@ -15,6 +15,18 @@ async function downloadResponse(res, fallbackName){
   setTimeout(()=>URL.revokeObjectURL(href),1500);
 }
 
+function showDownloadAd(){
+  const box=document.getElementById("downloadAd");
+  if(!box || box.dataset.loaded === "1") return;
+  box.hidden=false;
+  box.dataset.loaded="1";
+  try{
+    (window.adsbygoogle=window.adsbygoogle||[]).push({});
+  }catch(err){
+    console.warn("AdSense:",err);
+  }
+}
+
 async function submitForm(form, endpoint, statusId){
   const status=document.getElementById(statusId);
   const button=form.querySelector("button");
@@ -24,6 +36,7 @@ async function submitForm(form, endpoint, statusId){
     const res=await fetch(endpoint,{method:"POST",body:new FormData(form)});
     await downloadResponse(res,"download");
     status.textContent="Done — your download has started.";
+    showDownloadAd();
   }catch(e){status.textContent=e.message}
   finally{button.disabled=false}
 }
@@ -67,21 +80,11 @@ if(ytForm){
       const res=await fetch(endpoint,{method:"POST",body:new FormData(form)});
       await downloadResponse(res,mode==="mp3"?"youtube-audio.mp3":"youtube-video.mp4");
       status.textContent="Done — your download has started.";
+      showDownloadAd();
     }catch(err){status.textContent=err.message}
     finally{button.disabled=false}
   });
 }
-
-const ytMode=document.getElementById("ytMode");
-const qualityWrap=document.getElementById("qualityWrap");
-const ytSubmit=document.querySelector("#ytForm button[type=submit]");
-function updateYTMode(){
-  if(!ytMode || !qualityWrap || !ytSubmit) return;
-  const audio=ytMode.value==="mp3";
-  qualityWrap.style.display=audio?"none":"flex";
-  ytSubmit.textContent=audio?"Download MP3":"Download Video";
-}
-if(ytMode) {ytMode.addEventListener("change",updateYTMode);updateYTMode();}
 
 // ConvertNest Sky interactions
 document.addEventListener("DOMContentLoaded", () => {
