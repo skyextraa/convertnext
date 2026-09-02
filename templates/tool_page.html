@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{ seo.title }}</title>
+  <meta name="description" content="{{ seo.description }}">
+  <meta name="robots" content="index,follow,max-image-preview:large">
+  <link rel="canonical" href="{{ site_url }}{{ request.path }}">
+  <meta name="theme-color" content="#10145f">
+  <link rel="icon" type="image/png" href="{{ url_for('static', filename='convert-nest-mark.png') }}">
+  <link rel="manifest" href="{{ url_for('static', filename='manifest.webmanifest') }}">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="ConvertNest">
+  <meta property="og:title" content="{{ seo.title }}">
+  <meta property="og:description" content="{{ seo.description }}">
+  <meta property="og:url" content="{{ site_url }}{{ request.path }}">
+  <meta property="og:image" content="{{ site_url }}{{ url_for('static', filename='convert-nest-logo.webp') }}">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="{{ seo.title }}">
+  <meta name="twitter:description" content="{{ seo.description }}">
+  <meta name="twitter:image" content="{{ site_url }}{{ url_for('static', filename='convert-nest-logo.webp') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <script type="application/ld+json">{{ schema|tojson }}</script>
+</head>
+<body>
+<header class="topbar">
+  <a class="brand" href="{{ url_for('index') }}" aria-label="ConvertNest home"><img src="{{ url_for('static', filename='convert-nest-logo.webp') }}" alt="ConvertNest" width="152" height="152"></a>
+  <nav aria-label="Primary navigation"><a href="{{ url_for('index') }}#tools">Tools</a><a href="{{ url_for('index') }}#how">How it works</a><a href="{{ url_for('index') }}#faq">FAQ</a></nav>
+</header>
+<main>
+  <div class="breadcrumbs"><a href="{{ url_for('index') }}">ConvertNest</a><span>›</span><span>{{ seo.h1 }}</span></div>
+  <section class="tool-hero">
+    <div class="eyebrow">ONLINE CONVERTER</div>
+    <h1>{{ seo.h1 }}</h1>
+    <p>{{ seo.intro }}</p>
+    <div class="tool-panel">
+      {% if kind == 'pdf-jpg' %}
+      <form id="pdfForm">
+        <label class="dropzone" id="pdfDrop"><input type="file" name="file" accept=".pdf,application/pdf" hidden><b>Drop your PDF here</b><span>or click to choose a PDF file</span></label>
+        <div class="file-name" id="pdfName"></div>
+        <button class="primary full" type="submit">Convert PDF to JPG</button>
+      </form>
+      <div class="status" id="pdfStatus" aria-live="polite"></div>
+      {% elif kind in ['jpg-pdf','pdf-maker'] %}
+      <form id="jpgForm">
+        <label class="dropzone" id="jpgDrop"><input type="file" name="files" accept=".jpg,.jpeg,.png,.webp,image/*" multiple hidden><b>Drop your images here</b><span>JPG, PNG or WEBP • multiple files supported</span></label>
+        <div class="file-name" id="jpgName"></div>
+        <button class="primary full" type="submit">Convert Images to PDF</button>
+      </form>
+      <div class="status" id="jpgStatus" aria-live="polite"></div>
+      {% elif kind in ['youtube-video','youtube-mp3'] %}
+      <form id="ytForm">
+        <input class="url-input" type="url" name="url" placeholder="https://youtube.com/watch?v=..." aria-label="YouTube video URL" required>
+        <input type="hidden" name="mode" value="{{ 'mp3' if kind == 'youtube-mp3' else 'video' }}">
+        {% if kind == 'youtube-video' %}
+        <div class="yt-options"><label>Quality<select name="quality"><option value="360">360p</option><option value="480">480p</option><option value="720" selected>720p</option><option value="1080">1080p</option><option value="best">Best available</option></select></label></div>
+        {% else %}<input type="hidden" name="quality" value="best">{% endif %}
+        <button class="primary full" type="submit">{{ 'Download MP3' if kind == 'youtube-mp3' else 'Download MP4' }}</button>
+      </form>
+      <div class="notice">Only download content you own or have permission to download, and follow YouTube's terms.</div>
+      <div class="status" id="ytStatus" aria-live="polite"></div><div class="yt-meta" id="ytMeta"></div>
+      {% endif %}
+    </div>
+  </section>
+
+  <section class="content-section">
+    <h2>{{ seo.section_title }}</h2>
+    {% for paragraph in seo.paragraphs %}<p>{{ paragraph }}</p>{% endfor %}
+    <h2>How to use this converter</h2>
+    <ol>{% for step in seo.steps %}<li>{{ step }}</li>{% endfor %}</ol>
+  </section>
+
+  <section class="faq" aria-labelledby="tool-faq-title">
+    <h2 id="tool-faq-title">Frequently asked questions</h2>
+    {% for q in seo.faq %}<details><summary>{{ q.q }}</summary><p>{{ q.a }}</p></details>{% endfor %}
+  </section>
+  <p class="back-link"><a href="{{ url_for('index') }}">← Back to all ConvertNest tools</a></p>
+</main>
+<footer><div><strong>ConvertNest</strong><span>Simple online conversion tools.</span></div><span>© 2026 ConvertNest</span></footer>
+<script src="{{ url_for('static', filename='app.js') }}" defer></script>
+</body>
+</html>

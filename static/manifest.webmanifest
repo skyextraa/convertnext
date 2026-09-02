@@ -1,0 +1,9 @@
+{
+  "name": "ConvertNest Online Converter Tools",
+  "short_name": "ConvertNest",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f7f8fb",
+  "theme_color": "#10145f",
+  "icons": [{"src":"/static/convert-nest-mark.png","sizes":"512x472","type":"image/png"}]
+}

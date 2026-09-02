@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ConvertNest — Online PDF, JPG & Video Converter Tools</title>
+  <meta name="description" content="Free online converter tools for PDF to JPG, JPG to PDF, and eligible YouTube videos to MP4 or MP3. Fast, simple, and no account required.">
+  <meta name="robots" content="index,follow,max-image-preview:large">
+  <link rel="canonical" href="{{ site_url }}{{ url_for('index') }}">
+  <meta name="theme-color" content="#10145f">
+  <link rel="icon" type="image/png" href="{{ url_for('static', filename='convert-nest-mark.png') }}">
+  <link rel="manifest" href="{{ url_for('static', filename='manifest.webmanifest') }}">
+  <link rel="preload" as="image" href="{{ url_for('static', filename='convert-nest-logo.webp') }}" fetchpriority="high">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="ConvertNest">
+  <meta property="og:title" content="ConvertNest — Online PDF, JPG & Video Converter Tools">
+  <meta property="og:description" content="Convert PDF and image files online and process eligible YouTube videos as MP4 or MP3.">
+  <meta property="og:url" content="{{ site_url }}{{ url_for('index') }}">
+  <meta property="og:image" content="{{ site_url }}{{ url_for('static', filename='convert-nest-logo.webp') }}">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="ConvertNest — Online PDF, JPG & Video Converter Tools">
+  <meta name="twitter:description" content="Simple online PDF, image and video conversion tools.">
+  <meta name="twitter:image" content="{{ site_url }}{{ url_for('static', filename='convert-nest-logo.webp') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <script type="application/ld+json">{{ home_schema|tojson }}</script>
+</head>
+<body class="sky-page">
+<div class="sky-scene" aria-hidden="true">
+  <div class="sky-glow sky-glow-a"></div>
+  <div class="sky-glow sky-glow-b"></div>
+  <div class="cloud cloud-a"></div><div class="cloud cloud-b"></div><div class="cloud cloud-c"></div>
+  <div class="cloud cloud-d"></div>
+  <div class="stars"></div>
+  <div class="float-orb orb-a">♪</div><div class="float-orb orb-b">▶</div><div class="float-orb orb-c">PDF</div>
+</div>
+
+<header class="topbar">
+  <a class="brand" href="{{ url_for('index') }}" aria-label="ConvertNest home"><img src="{{ url_for('static', filename='convert-nest-logo.webp') }}" alt="ConvertNest" width="152" height="152"></a>
+  <nav aria-label="Primary navigation">
+    <a href="#youtube-tools">YouTube</a><a href="#tools">All tools</a><a href="#how">How it works</a><a href="#faq">FAQ</a>
+  </nav>
+</header>
+
+<main>
+  <section class="hero sky-hero" aria-labelledby="home-title">
+    <div class="hero-copy">
+      <div class="eyebrow pill-eyebrow">✦ FAST • SIMPLE • ONLINE</div>
+      <h1 id="home-title">Convert anything.<br><span>Download what you need.</span></h1>
+      <p>ConvertNest puts your most useful video, audio, image and PDF tools in one fast workspace.</p>
+      <div class="hero-actions"><a class="primary" href="#youtube-tools">Start with YouTube →</a><a class="secondary" href="#tools">Explore all tools</a></div>
+      <div class="trust-row"><span>✓ Free to use</span><span>✓ No sign-up</span><span>✓ Simple downloads</span></div>
+    </div>
+
+    <div class="youtube-hero-card" id="youtube-tools">
+      <div class="yt-card-top"><span class="yt-badge">● MOST POPULAR</span><span class="yt-live">● READY</span></div>
+      <div class="yt-title-row"><div class="yt-logo">▶</div><div><div class="yt-kicker">YOUTUBE DOWNLOADER</div><h2>YouTube to <b>MP3</b> or <b>MP4</b></h2></div></div>
+      <p>Paste an eligible public YouTube link and choose audio or video.</p>
+      <form id="ytForm">
+        <div class="yt-input-wrap"><span>🔗</span><input class="url-input" type="url" name="url" placeholder="Paste YouTube URL here..." aria-label="YouTube video URL" required></div>
+        <div class="yt-controls">
+          <label><span>Format</span><select name="mode" id="ytMode"><option value="mp3">Audio (MP3)</option><option value="video" selected>Video (MP4)</option></select></label>
+          <label id="qualityWrap"><span>Quality</span><select name="quality"><option value="360">360p</option><option value="480">480p</option><option value="720" selected>720p</option><option value="1080">1080p</option><option value="best">Best available</option></select></label>
+          <button class="primary yt-submit" type="submit">Download <span id="ytButtonLabel">MP4</span> →</button>
+        </div>
+      </form>
+      <div class="notice">Only download content you own or have permission to download, and follow YouTube's terms.</div>
+      <div class="status" id="ytStatus" aria-live="polite"></div><div class="yt-meta" id="ytMeta"></div>
+      <div class="yt-links"><a href="{{ url_for('youtube_to_mp3_page') }}">YouTube to MP3</a><a href="{{ url_for('youtube_downloader_page') }}">YouTube MP4 downloader</a></div>
+    </div>
+  </section>
+
+  <div class="ad-slot" aria-label="Advertisement">ADVERTISEMENT</div>
+
+  <section id="tools" class="tools-section" aria-labelledby="tools-title">
+    <div class="section-heading"><div class="eyebrow">POPULAR TOOLS</div><h2 id="tools-title">Everything you need, <span>in one place.</span></h2><p>Start with YouTube, then handle your everyday PDF and image conversions.</p></div>
+    <div class="tools">
+      <article class="tool-card featured-tool">
+        <div class="tool-icon pdf">PDF</div><h2>PDF Maker</h2>
+        <p>Combine JPG, PNG, or WEBP images into one PDF.</p><a class="tool-btn" href="{{ url_for('pdf_maker_page') }}">Create PDF →</a>
+      </article>
+      <article class="tool-card"><div class="tool-icon pdf">PDF</div><h2>PDF to JPG</h2><p>Turn PDF pages into high-quality JPG images.</p><a class="tool-btn" href="{{ url_for('pdf_to_jpg_page') }}">Convert now →</a></article>
+      <article class="tool-card"><div class="tool-icon img">JPG</div><h2>JPG to PDF</h2><p>Combine images into a downloadable PDF document.</p><a class="tool-btn" href="{{ url_for('jpg_to_pdf_page') }}">Convert now →</a></article>
+      <article class="tool-card"><div class="tool-icon pdf">ZIP</div><h2>More tools</h2><p>Explore the next ConvertNest converters as they are added.</p><a class="tool-btn" href="#tools">Explore →</a></article>
+    </div>
+  </section>
+
+  <section id="how" class="how sky-panel" aria-labelledby="how-title">
+    <div class="eyebrow">HOW IT WORKS</div><h2 id="how-title">Simple in three steps.</h2>
+    <div class="steps"><div><b>01</b><strong>Paste or upload</strong><p>Give ConvertNest a YouTube link or your document/image file.</p></div><div><b>02</b><strong>Choose your format</strong><p>Pick MP3, MP4, JPG, or PDF depending on the tool.</p></div><div><b>03</b><strong>Download</strong><p>Get the processed result through a normal download.</p></div></div>
+  </section>
+
+  <section class="seo-copy sky-panel" aria-labelledby="seo-title">
+    <h2 id="seo-title">Free online converter tools for everyday tasks</h2>
+    <p>ConvertNest is an online conversion toolkit for common document, image, and eligible media workflows. Use the <a href="{{ url_for('youtube_to_mp3_page') }}">YouTube to MP3 converter</a> or <a href="{{ url_for('youtube_downloader_page') }}">YouTube MP4 downloader</a> for public videos you have permission to process, or create PDFs and convert images with the dedicated tools.</p>
+    <p>Each tool has its own instructions and limits so you can understand exactly what it does before starting.</p>
+  </section>
+
+  <section id="faq" class="faq sky-panel" aria-labelledby="faq-title">
+    <div class="eyebrow">FAQ</div><h2 id="faq-title">Common questions about ConvertNest</h2>
+    <details><summary>Is ConvertNest free to use?</summary><p>Yes. The conversion tools are available without an account. Usage limits may apply.</p></details>
+    <details><summary>Can I convert YouTube videos to MP3?</summary><p>The YouTube tool can process eligible public videos that you own or have permission to download. Restricted videos may not work.</p></details>
+    <details><summary>Can I download YouTube videos as MP4?</summary><p>Yes, for eligible public videos. Choose MP4 and an available quality, or use Best available.</p></details>
+    <details><summary>Can I convert PDF and image files?</summary><p>Yes. ConvertNest currently includes PDF to JPG and JPG/PNG/WEBP to PDF tools.</p></details>
+  </section>
+</main>
+<footer><div><strong>ConvertNest</strong><span>Simple online conversion tools.</span></div><span>© 2026 ConvertNest</span></footer>
+<script src="{{ url_for('static', filename='app.js') }}" defer></script>
+</body>
+</html>
