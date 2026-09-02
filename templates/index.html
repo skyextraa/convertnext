@@ -1,187 +1,27 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>ConvertNest — YouTube to MP3, PDF Maker & Online Converters</title>
-  <meta name="description" content="ConvertNest offers a YouTube to MP3 converter for eligible public videos, plus free PDF Maker, PDF to JPG and JPG to PDF tools.">
-  <meta name="robots" content="index,follow,max-image-preview:large">
-  <link rel="canonical" href="{{ site_url }}{{ url_for('index') }}">
-  <meta name="theme-color" content="#0b5cff">
-  <link rel="icon" type="image/png" href="{{ url_for('static', filename='convert-nest-mark.png') }}">
-  <link rel="manifest" href="{{ url_for('static', filename='manifest.webmanifest') }}">
-  <link rel="preload" as="image" href="{{ url_for('static', filename='convert-nest-logo.webp') }}" fetchpriority="high">
-
-  <meta property="og:type" content="website">
-  <meta property="og:site_name" content="ConvertNest">
-  <meta property="og:title" content="ConvertNest — YouTube to MP3, PDF Maker & Online Converters">
-  <meta property="og:description" content="Simple online YouTube, PDF and image conversion tools.">
-  <meta property="og:url" content="{{ site_url }}{{ url_for('index') }}">
-  <meta property="og:image" content="{{ site_url }}{{ url_for('static', filename='convert-nest-logo.webp') }}">
-  <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="ConvertNest — YouTube to MP3, PDF Maker & Online Converters">
-  <meta name="twitter:description" content="Simple online YouTube, PDF and image conversion tools.">
-  <meta name="twitter:image" content="{{ site_url }}{{ url_for('static', filename='convert-nest-logo.webp') }}">
-
-  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-  <script type="application/ld+json">{{ home_schema|tojson }}</script>
-  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2774947817383530" crossorigin="anonymous"></script>
-{% if turnstile_site_key %}<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>{% endif %}
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ConvertNest — Free Image & PDF Converters</title>
+<meta name="description" content="Convert JPG, PNG and WEBP images, or switch between PDF to JPG and images to PDF in one free online converter.">
+<meta name="robots" content="index,follow,max-image-preview:large"><link rel="canonical" href="{{ site_url }}/">
+<link rel="icon" type="image/png" href="{{ url_for('static',filename='convert-nest-mark.png') }}"><link rel="manifest" href="{{ url_for('static',filename='manifest.webmanifest') }}">
+<link rel="stylesheet" href="{{ url_for('static',filename='style.css') }}"><script type="application/ld+json">{{ home_schema|tojson }}</script>
 </head>
-<body class="sky-page">
-  <div class="sky-scene" aria-hidden="true">
-    <div class="sky-glow sky-glow-a"></div>
-    <div class="sky-glow sky-glow-b"></div>
-    <div class="cloud cloud-a"></div>
-    <div class="cloud cloud-b"></div>
-    <div class="cloud cloud-c"></div>
-    <div class="cloud cloud-d"></div>
-    <div class="stars"></div>
-    <div class="float-orb orb-a">♪</div>
-    <div class="float-orb orb-b">▶</div>
-    <div class="float-orb orb-c">PDF</div>
-  </div>
-
-  <header class="topbar">
-    <a class="brand" href="{{ url_for('index') }}" aria-label="ConvertNest home">
-      <img src="{{ url_for('static', filename='convert-nest-logo.webp') }}" alt="ConvertNest" width="152" height="152">
-    </a>
-    <nav aria-label="Primary navigation">
-      <a href="#youtube-tools">YouTube</a>
-      <a href="#tools">All tools</a>
-      <a href="#how">How it works</a>
-      <a href="#faq">FAQ</a>
-    </nav>
-  </header>
-
-  <main>
-    <section class="hero sky-hero" aria-labelledby="home-title">
-      <div class="hero-copy">
-        <div class="eyebrow pill-eyebrow">✦ FAST • SIMPLE • ONLINE</div>
-        <h1 id="home-title">Convert anything.<br><span>Download what you need.</span></h1>
-        <p>One clean workspace for YouTube MP3, PDF Maker, PDF to JPG and JPG to PDF.</p>
-        <div class="hero-actions">
-          <a class="primary" href="#youtube-tools">Start with YouTube →</a>
-          <a class="secondary" href="#tools">Explore all tools</a>
-        </div>
-        <div class="trust-row"><span>✓ Free to use</span><span>✓ No sign-up</span><span>✓ Simple downloads</span></div>
-      </div>
-
-      <div class="youtube-hero-card" id="youtube-tools">
-        <div class="yt-card-top">
-          <span class="yt-badge">● MOST POPULAR</span>
-          <span class="yt-live">● READY</span>
-        </div>
-        <div class="yt-title-row">
-          <div class="yt-logo">▶</div>
-          <div>
-            <div class="yt-kicker">YOUTUBE DOWNLOADER</div>
-            <h2>YouTube to <b>MP3</b></h2>
-          </div>
-        </div>
-        <p>Paste an eligible public YouTube link and download the audio as an MP3.</p>
-        <form id="ytForm">
-          <div class="yt-input-wrap">
-            <span>🔗</span>
-            <input class="url-input" type="url" name="url" placeholder="Paste YouTube URL here..." aria-label="YouTube video URL" required>
-          </div>
-          {% if turnstile_site_key %}
-          <div class="turnstile-wrap">
-           <div class="cf-turnstile"
-     data-sitekey="{{ turnstile_site_key }}"
-     data-theme="light"
-     data-size="flexible"
-     data-action="youtube-download"
-      data-callback="convertNestTurnstileSuccess"
-      data-expired-callback="convertNestTurnstileExpired"
-      data-error-callback="convertNestTurnstileError">
-</div>
-          </div>
-          {% else %}
-          <div class="turnstile-missing">Human verification is not configured yet.</div>
-          {% endif %}
-          <div class="yt-controls">
-            <input type="hidden" name="mode" value="mp3">
-            <button class="primary yt-submit" type="submit">Download MP3 →</button>
-          </div>
-        </form>
-        <div class="notice">Only download content you own or have permission to download, and follow YouTube's terms.</div>
-        <div class="status" id="ytStatus" aria-live="polite"></div>
-        <div class="yt-meta" id="ytMeta"></div>
-      </div>
-    </section>
-
-    <div id="downloadAd" class="download-ad" hidden aria-label="Advertisement">
-      <div class="ad-label">ADVERTISEMENT</div>
-      <ins class="adsbygoogle"
-           style="display:block;text-align:center;"
-           data-ad-layout="in-article"
-           data-ad-format="fluid"
-           data-ad-client="ca-pub-2774947817383530"
-           data-ad-slot="1240471571"></ins>
-    </div>
-
-    <div class="ad-slot" aria-label="Advertisement">ADVERTISEMENT</div>
-
-    <section id="tools" class="tools-section" aria-labelledby="tools-title">
-      <div class="section-heading">
-        <div class="eyebrow">POPULAR TOOLS</div>
-        <h2 id="tools-title">Your most-used tools, <span>right up front.</span></h2>
-        <p>YouTube is first. PDF creation and everyday file conversion are next.</p>
-      </div>
-
-      <div class="tools">
-
-        <article class="tool-card featured-tool">
-          <div class="tool-icon pdf">PDF</div>
-          <span class="hot-tag">NEW</span>
-          <h2>PDF Maker</h2>
-          <p>Create one PDF from multiple JPG, PNG, or WEBP images.</p>
-          <a class="tool-btn" href="{{ url_for('pdf_maker_page') }}">Create PDF →</a>
-        </article>
-
-        <article class="tool-card">
-          <div class="tool-icon pdf">PDF</div>
-          <h2>PDF to JPG</h2>
-          <p>Turn PDF pages into high-quality JPG images in a ZIP.</p>
-          <a class="tool-btn" href="{{ url_for('pdf_to_jpg_page') }}">Convert now →</a>
-        </article>
-
-        <article class="tool-card">
-          <div class="tool-icon img">JPG</div>
-          <h2>JPG to PDF</h2>
-          <p>Combine JPG, PNG, or WEBP images into one PDF.</p>
-          <a class="tool-btn" href="{{ url_for('jpg_to_pdf_page') }}">Convert now →</a>
-        </article>
-      </div>
-    </section>
-
-    <section id="how" class="how sky-panel" aria-labelledby="how-title">
-      <div class="eyebrow">HOW IT WORKS</div>
-      <h2 id="how-title">Simple in three steps.</h2>
-      <div class="steps">
-        <div><b>01</b><strong>Paste or upload</strong><p>Give ConvertNest a YouTube link or your document/image file.</p></div>
-        <div><b>02</b><strong>Choose your format</strong><p>Pick MP3, JPG, or PDF depending on the tool.</p></div>
-        <div><b>03</b><strong>Download</strong><p>Get the processed result through a normal download.</p></div>
-      </div>
-    </section>
-
-    <section class="seo-copy sky-panel" aria-labelledby="seo-title">
-      <h2 id="seo-title">Free online converter tools for everyday tasks</h2>
-      <p>ConvertNest brings a YouTube to MP3 converter, a PDF Maker, PDF to JPG, and JPG to PDF into one simple workspace. Use the <a href="{{ url_for('youtube_to_mp3_page') }}">YouTube to MP3 converter</a> only for content you own or have permission to process.</p>
-      <p>Create PDFs from images with <a href="{{ url_for('pdf_maker_page') }}">PDF Maker</a>, or use the dedicated PDF and image conversion tools.</p>
-    </section>
-
-    <section id="faq" class="faq sky-panel" aria-labelledby="faq-title">
-      <div class="eyebrow">FAQ</div>
-      <h2 id="faq-title">Common questions about ConvertNest</h2>
-      <details><summary>Is ConvertNest free to use?</summary><p>Yes. The conversion tools are available without an account. Usage limits may apply.</p></details>
-      <details><summary>Can I convert YouTube videos to MP3?</summary><p>The YouTube tool can process eligible public videos that you own or have permission to download. Restricted videos may not work.</p></details>
-      <details><summary>Can I create a PDF from images?</summary><p>Yes. PDF Maker accepts JPG, JPEG, PNG, and WEBP images and combines them into one PDF.</p></details>
-    </section>
-  </main>
-
-  <footer><div><strong>ConvertNest</strong><span>Simple online conversion tools.</span></div><span>© 2026 ConvertNest</span></footer>
-  <script src="{{ url_for('static', filename='app.js') }}" defer></script>
-</body>
-</html>
+<body>
+<div class="sky-scene" aria-hidden="true"><div class="sky-glow"></div><div class="sun"></div><div class="cloud cloud-a"></div><div class="cloud cloud-b"></div><div class="cloud cloud-c"></div><div class="sparkles"></div></div>
+<header class="topbar"><a class="brand" href="{{ url_for('index') }}"><img src="{{ url_for('static',filename='convert-nest-logo.webp') }}" alt="ConvertNest"></a><nav><a href="#tools">Tools</a><a href="#how">How it works</a><a href="#faq">FAQ</a></nav></header>
+<main>
+<section class="hero"><div><div class="eyebrow">✦ FAST • SIMPLE • ONLINE</div><div class="sky-pill">☁ A smoother conversion workspace</div><h1>Convert files.<br><span>Keep it simple.</span></h1><p>Change JPG, PNG and WEBP formats, or switch between PDF and JPG in one clean, mobile-friendly workspace.</p><div class="hero-actions"><a class="primary" href="#tools">Explore tools →</a><a class="secondary" href="#how">How it works</a></div><div class="trust-row"><span>✓ Free to use</span><span>✓ No sign-up</span><span>✓ Mobile friendly</span></div></div>
+<div class="hero-card interactive-card"><img class="hero-logo" src="{{ url_for('static',filename='convert-nest-logo.webp') }}" alt="ConvertNest"><strong>Simple tools, one workspace</strong><p>Switch formats without jumping between separate pages or cluttered controls.</p><div class="mini-switch"><span>JPG</span><b>↔</b><span>PNG</span></div></div></section>
+<div class="ad-slot">ADVERTISEMENT</div>
+<section id="tools" class="section"><div class="section-heading"><div class="eyebrow">POPULAR TOOLS</div><h2>Two converters. No clutter.</h2><p>Each tool handles both directions where it makes sense.</p></div>
+<div class="tools">
+<article class="tool-card interactive-card"><div class="tool-icon img">IMG</div><h2>Image Converter</h2><p>Switch JPG, JPEG, PNG or WEBP into PNG or JPEG in one tool.</p><a class="tool-btn" href="{{ url_for('image_converter_page') }}">Open image converter →</a></article>
+<article class="tool-card interactive-card"><div class="tool-icon pdf">PDF</div><h2>PDF ↔ JPG Converter</h2><p>Convert PDF pages to JPG or combine images into a PDF using one switch.</p><a class="tool-btn" href="{{ url_for('pdf_converter_page') }}">Open PDF converter →</a></article>
+</div></section>
+<section id="how" class="how"><div class="section-heading"><div class="eyebrow">HOW IT WORKS</div><h2>Choose. Switch. Download.</h2></div><div class="steps"><div><b>01</b><strong>Choose your files</strong><p>Upload images or a PDF from your phone or computer.</p></div><div><b>02</b><strong>Switch the direction</strong><p>Pick PNG/JPEG for images, or PDF → JPG / Images → PDF.</p></div><div><b>03</b><strong>Download</strong><p>Get your converted file or ZIP when there are multiple results.</p></div></div></section>
+<section id="faq" class="faq"><div class="section-heading"><div class="eyebrow">FAQ</div><h2>Quick answers.</h2></div><details><summary>Can I convert JPG to PNG and PNG to JPG?</summary><p>Yes. The Image Converter uses one switch for both directions.</p></details><details><summary>Can I convert PDF to JPG and JPG to PDF?</summary><p>Yes. The PDF Converter handles both directions on the same page.</p></details><details><summary>Can I convert multiple files?</summary><p>Yes. Multiple images can be converted together, and multiple PDF pages are returned in a ZIP.</p></details></section>
+</main>
+<footer><div><strong>ConvertNest</strong><span>Simple online conversion tools.</span></div><div><span>© 2026 ConvertNest</span><span>More from us: <a href="https://rentakgames.onrender.com" target="_blank" rel="noopener noreferrer">RentakGames</a></span></div></footer>
+<script src="{{ url_for('static',filename='app.js') }}" defer></script></body></html>

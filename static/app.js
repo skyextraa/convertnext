@@ -1,192 +1,64 @@
-window.convertNestTurnstileToken = "";
-window.convertNestTurnstileSuccess = function(token) { window.convertNestTurnstileToken = token || ""; };
-window.convertNestTurnstileExpired = function() { window.convertNestTurnstileToken = ""; };
-window.convertNestTurnstileError = function() { window.convertNestTurnstileToken = ""; };
-
 async function downloadResponse(res, fallbackName) {
-  const type = res.headers.get("content-type") || "";
-
+  const type = res.headers.get('content-type') || '';
   if (!res.ok) {
-    let message = "Download failed.";
-    try {
-      if (type.includes("json")) {
-        const data = await res.json();
-        message = data?.error || message;
-      }
-    } catch (_) {}
+    let message = 'Conversion failed.';
+    try { if (type.includes('json')) message = (await res.json()).error || message; } catch (_) {}
     throw new Error(message);
   }
-
   const blob = await res.blob();
-  const cd = res.headers.get("content-disposition") || "";
+  const cd = res.headers.get('content-disposition') || '';
   const match = cd.match(/filename\*?=(?:UTF-8''|")?([^;"]+)/i);
   let name = fallbackName;
-
-  if (match) {
-    try {
-      name = decodeURIComponent(match[1].replace(/"/g, "").trim());
-    } catch (_) {
-      name = match[1].replace(/"/g, "").trim();
-    }
-  }
-
-  const href = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = href;
-  a.download = name;
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
+  if (match) { try { name = decodeURIComponent(match[1].replace(/"/g, '').trim()); } catch (_) { name = match[1].replace(/"/g, '').trim(); } }
+  const href = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = href; a.download = name; document.body.appendChild(a); a.click(); a.remove();
   setTimeout(() => URL.revokeObjectURL(href), 1500);
 }
 
-function showDownloadAd() {
-  const box = document.getElementById("downloadAd");
-  if (!box || box.dataset.loaded === "1") return;
-
-  box.hidden = false;
-  box.dataset.loaded = "1";
-
-  try {
-    (window.adsbygoogle = window.adsbygoogle || []).push({});
-  } catch (err) {
-    console.warn("AdSense:", err);
-  }
-}
-
-async function submitForm(form, endpoint, statusId) {
-  const status = document.getElementById(statusId);
-  const button = form.querySelector("button");
-
+async function submitForm(form, endpoint, statusId, fallback) {
+  const status = document.getElementById(statusId); const button = form.querySelector('button[type=submit]');
   if (!status || !button) return;
-
-  status.textContent = "Working…";
-  button.disabled = true;
-
-  try {
-    const res = await fetch(endpoint, {
-      method: "POST",
-      body: new FormData(form)
-    });
-
-    await downloadResponse(res, "download");
-    status.textContent = "Done — your download has started.";
-    showDownloadAd();
-  } catch (e) {
-    status.textContent = e.message || "Download failed.";
-  } finally {
-    button.disabled = false;
-  }
+  status.textContent = 'Converting…'; button.disabled = true;
+  try { await downloadResponse(await fetch(endpoint, {method:'POST', body:new FormData(form)}), fallback); status.textContent = 'Done — your download has started.'; }
+  catch (e) { status.textContent = e.message || 'Conversion failed.'; }
+  finally { button.disabled = false; }
 }
 
-function bindDrop(id, nameId) {
-  const zone = document.getElementById(id);
-  if (!zone) return;
-
-  const input = zone.querySelector("input");
-  const name = document.getElementById(nameId);
-  if (!input || !name) return;
-
-  const showNames = files => {
-    name.textContent = [...files].map(x => x.name).join(", ");
-  };
-
-  input.addEventListener("change", () => showNames(input.files));
-
-  zone.addEventListener("dragover", e => {
-    e.preventDefault();
-    zone.classList.add("drag");
-  });
-
-  zone.addEventListener("dragleave", e => {
-    e.preventDefault();
-    zone.classList.remove("drag");
-  });
-
-  zone.addEventListener("drop", e => {
-    e.preventDefault();
-    zone.classList.remove("drag");
-    try {
-      input.files = e.dataTransfer.files;
-      showNames(input.files);
-    } catch (_) {}
-  });
+function bindDrop(zoneId, inputId, nameId) {
+  const zone = document.getElementById(zoneId), input = document.getElementById(inputId), name = document.getElementById(nameId);
+  if (!zone || !input || !name) return;
+  const show = files => { const n = [...files].length; name.textContent = n ? `${n} file${n === 1 ? '' : 's'} selected` : ''; };
+  input.addEventListener('change', () => show(input.files));
+  zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('drag'); });
+  zone.addEventListener('dragleave', () => zone.classList.remove('drag'));
+  zone.addEventListener('drop', e => { e.preventDefault(); zone.classList.remove('drag'); try { input.files = e.dataTransfer.files; show(input.files); } catch (_) {} });
 }
 
-bindDrop("pdfDrop", "pdfName");
-bindDrop("jpgDrop", "jpgName");
+bindDrop('imageDrop','imageInput','imageName');
+bindDrop('pdfInputZone','pdfInput','pdfFileName');
+bindDrop('imagesInputZone','imagesInput','pdfFileName');
 
-const pdfForm = document.getElementById("pdfForm");
+const imageForm = document.getElementById('imageForm');
+if (imageForm) {
+  const output = document.getElementById('imageOutput'), qualityRow = document.getElementById('qualityRow'), quality = document.getElementById('quality'), qualityValue = document.getElementById('qualityValue'), submit = imageForm.querySelector('button[type=submit]');
+  document.querySelectorAll('.format-option[data-output]').forEach(btn => btn.addEventListener('click', () => {
+    document.querySelectorAll('.format-option[data-output]').forEach(x => x.classList.remove('active')); btn.classList.add('active'); output.value = btn.dataset.output;
+    const jpeg = output.value === 'jpeg'; qualityRow.hidden = !jpeg; submit.textContent = `Convert to ${jpeg ? 'JPEG' : 'PNG'}`;
+  }));
+  quality.addEventListener('input', () => qualityValue.value = quality.value);
+  imageForm.addEventListener('submit', e => { e.preventDefault(); submitForm(e.target,'/api/image-convert','imageStatus','converted.png'); });
+}
+
+const pdfForm = document.getElementById('pdfConvertForm');
 if (pdfForm) {
-  pdfForm.addEventListener("submit", e => {
-    e.preventDefault();
-    submitForm(e.target, "/api/pdf-to-jpg", "pdfStatus");
-  });
+  const mode = document.getElementById('pdfMode'), pdfZone = document.getElementById('pdfInputZone'), imgZone = document.getElementById('imagesInputZone'), pdfInput = document.getElementById('pdfInput'), imagesInput = document.getElementById('imagesInput'), submit = document.getElementById('pdfSubmit'), name = document.getElementById('pdfFileName');
+  const sync = m => { mode.value = m; const imageMode = m === 'jpg-to-pdf'; pdfZone.hidden = imageMode; imgZone.hidden = !imageMode; pdfInput.disabled = imageMode; imagesInput.disabled = !imageMode; submit.textContent = imageMode ? 'Convert Images to PDF' : 'Convert PDF to JPG'; name.textContent = ''; };
+  document.querySelectorAll('.direction-switch .format-option').forEach(btn => btn.addEventListener('click', () => { document.querySelectorAll('.direction-switch .format-option').forEach(x => x.classList.remove('active')); btn.classList.add('active'); sync(btn.dataset.mode); }));
+  pdfForm.addEventListener('submit', e => { e.preventDefault(); submitForm(e.target,'/api/pdf-convert','pdfConvertStatus',mode.value === 'jpg-to-pdf' ? 'images.pdf' : 'pdf-to-jpg.zip'); });
 }
 
-const jpgForm = document.getElementById("jpgForm");
-if (jpgForm) {
-  jpgForm.addEventListener("submit", e => {
-    e.preventDefault();
-    submitForm(e.target, "/api/jpg-to-pdf", "jpgStatus");
-  });
-}
-
-const ytForm = document.getElementById("ytForm");
-
-if (ytForm) {
-  ytForm.addEventListener("submit", async e => {
-    e.preventDefault();
-
-    const form = e.target;
-    const status = document.getElementById("ytStatus");
-    const button = form.querySelector("button[type=submit]");
-
-    if (!status || !button) return;
-
-    status.textContent = "Preparing MP3… keep this tab open.";
-    button.disabled = true;
-
-    const turnstileToken = form.querySelector('input[name="cf-turnstile-response"]')?.value || window.convertNestTurnstileToken || "";
-    if (!turnstileToken) {
-      status.textContent = "Please complete the human verification first.";
-      button.disabled = false;
-      return;
-    }
-
-    try {
-      const res = await fetch("/api/youtube/mp3", {
-        method: "POST",
-        body: new FormData(form)
-      });
-
-      await downloadResponse(res, "youtube-audio.mp3");
-      status.textContent = "Done — your MP3 download has started.";
-      showDownloadAd();
-    } catch (err) {
-      status.textContent = err.message || "MP3 download failed.";
-      window.convertNestTurnstileToken = "";
-    } finally {
-      button.disabled = false;
-    }
-  });
-}
-
-document.addEventListener("DOMContentLoaded", () => {
-  const card = document.querySelector(".youtube-hero-card");
-
-  if (card && window.matchMedia("(pointer:fine)").matches) {
-    card.addEventListener("pointermove", e => {
-      const r = card.getBoundingClientRect();
-      const x = (e.clientX - r.left) / r.width - 0.5;
-      const y = (e.clientY - r.top) / r.height - 0.5;
-      card.style.transform =
-        `perspective(900px) rotateY(${x * 2.2}deg) ` +
-        `rotateX(${-y * 1.8}deg) translateY(-5px)`;
-    });
-
-    card.addEventListener("pointerleave", () => {
-      card.style.transform = "";
-    });
-  }
+// Gentle mouse interaction for desktop only.
+document.querySelectorAll('.interactive-card').forEach(card => {
+  if (!window.matchMedia('(pointer:fine)').matches) return;
+  card.addEventListener('pointermove', e => { const r=card.getBoundingClientRect(), x=(e.clientX-r.left)/r.width-.5, y=(e.clientY-r.top)/r.height-.5; card.style.transform=`perspective(1000px) rotateY(${x*2}deg) rotateX(${-y*1.5}deg) translateY(-3px)`; });
+  card.addEventListener('pointerleave', () => card.style.transform='');
 });
