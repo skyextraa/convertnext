@@ -16,10 +16,7 @@ services:
       cd /opt/render/project/src &&
       pip install -r requirements.txt
     startCommand: >-
-      export BGUTIL_SERVER_HOME=/opt/bgutil-ytdlp-pot-provider/server &&
-      export CONVERTNEST_DISABLE_LOCAL_POT=1 &&
-      unset YTDL_POT_PROVIDER_URL &&
-      exec gunicorn --workers 1 --threads 4 --timeout 900 app:app
+      bash start_render.sh
     envVars:
       - key: PYTHON_VERSION
         value: 3.13.5

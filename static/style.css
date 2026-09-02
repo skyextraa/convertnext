@@ -105,7 +105,7 @@ footer{background:rgba(4,20,58,.94);backdrop-filter:blur(14px)}
 .orb-a{right:12%;top:24%;width:70px;height:70px;font-size:25px}.orb-b{right:7%;top:60%;width:62px;height:62px;font-size:20px;animation-delay:-2s}.orb-c{left:4%;top:46%;width:68px;height:68px;font-size:12px;animation-delay:-4s}
 .sky-hero{min-height:620px;padding:78px 0 64px;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:56px}
 .hero-copy{max-width:610px}.hero-copy h1{font-size:clamp(48px,5.5vw,70px);line-height:.98;max-width:590px}.hero-copy p{max-width:560px}
-.youtube-hero-card{min-width:0;background:linear-gradient(145deg,rgba(8,65,145,.97),rgba(24,83,170,.96));border:1px solid rgba(255,255,255,.25);border-radius:28px;padding:30px;box-shadow:0 28px 80px rgba(12,65,140,.25);color:#fff;transition:transform .2s ease}
+.youtube-hero-card{min-width:0;background:linear-gradient(145deg,rgba(8,65,145,.97),rgba(24,83,170,.96));border:1px solid rgba(255,255,255,.25);border-radius:28px;padding:30px;box-shadow:0 28px 80px rgba(12,65,140,.25);color:#fff;transition:transform .2s ease;overflow:visible}
 .youtube-hero-card .url-input{background:rgba(4,37,88,.55);border-color:rgba(255,255,255,.18);color:#fff}.youtube-hero-card .url-input::placeholder{color:rgba(255,255,255,.62)}
 .youtube-hero-card .notice{color:rgba(255,255,255,.68)}.youtube-hero-card .yt-links a{color:#7dd3fc}
 .youtube-hero-card .yt-controls{display:grid;grid-template-columns:1fr 1fr;gap:10px;align-items:end}.youtube-hero-card .yt-submit{grid-column:1/-1}

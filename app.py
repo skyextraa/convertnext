@@ -31,7 +31,7 @@ def verify_turnstile():
     TURNSTILE_SECRET_KEY environment variable. A missing secret intentionally
     fails closed so YouTube endpoints are never exposed without verification.
     """
-    secret = os.environ.get("TURNSTILE_SECRET_KEY", "").strip()
+    secret = (os.environ.get("TURNSTILE_SECRET_KEY") or os.environ.get("TURNSTILE_SECRET") or "").strip()
     token = request.form.get("cf-turnstile-response", "").strip()
 
     if not secret:
@@ -210,10 +210,10 @@ def youtube_common_options():
         "no_warnings": False,
         "noplaylist": True,
         "restrictfilenames": True,
-        "retries": 8,
-        "fragment_retries": 8,
-        "concurrent_fragment_downloads": 2,
-        "socket_timeout": 60,
+        "retries": 4,
+        "fragment_retries": 4,
+        "concurrent_fragment_downloads": 1,
+        "socket_timeout": 30,
         "http_chunk_size": 10 * 1024 * 1024,
         "js_runtimes": {"node": {}},
         "ffmpeg_location": _ffmpeg_path(),
@@ -674,7 +674,7 @@ def youtube_mp3():
     opts = youtube_common_options()
     opts.update({
         "outtmpl": str(job / "%(title).120s.%(ext)s"),
-        "format": "ba[acodec!=none]/b[acodec!=none]/b",
+        "format": "ba[ext=m4a]/ba[ext=webm]/ba[acodec!=none]/b[acodec!=none]",
         "max_filesize": 512 * 1024 * 1024,
         "postprocessors": [{
             "key": "FFmpegExtractAudio",

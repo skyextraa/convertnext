@@ -9,6 +9,8 @@ Add BOTH variables to the ConvertNest web service:
 - `TURNSTILE_SITE_KEY` = your Cloudflare Turnstile Site Key
 - `TURNSTILE_SECRET_KEY` = your Cloudflare Turnstile Secret Key
 
+The backend also accepts the older `TURNSTILE_SECRET` name, but `TURNSTILE_SECRET_KEY` is the preferred name.
+
 Do not put the secret key in HTML, JavaScript, GitHub, or `render.yaml` as a literal value.
 
 ## Cloudflare Turnstile widget
