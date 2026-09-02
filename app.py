@@ -143,7 +143,7 @@ def youtube_common_options():
     script_path = _pot_provider_script_path()
 
     youtube_args = {
-        "player_client": ["mweb", "web_safari", "android_vr"],
+        "player_client": ["mweb", "web_safari", "android_vr", "web_embedded"],
         "fetch_pot": ["always"],
         "formats": ["missing_pot"],
         "pot_trace": ["true"],
@@ -219,9 +219,9 @@ def youtube_error_message(exc):
     if "geo" in message or "country" in message or "region" in message:
         return "This video is region-restricted and is not available to this server."
     if "po token" in message or "proof of origin" in message or "403" in message or "forbidden" in message:
-        return "YouTube rejected the media stream (HTTP 403). This usually means the YouTube client or PO-token setup is outdated. Restart ConvertNest after running the included setup script, then try the same public video again."
+        return "YouTube rejected the media stream (HTTP 403). Try another eligible public video. If many different videos fail, update/redeploy the server so yt-dlp and the PO-token provider are rebuilt together."
     if "javascript runtime" in message or "ejs" in message:
-        return "YouTube's current JavaScript challenge could not be solved. Make sure the deployment has Node 22 and the latest yt-dlp package."
+        return "YouTube's JavaScript challenge could not be solved. The server needs Node.js and a current yt-dlp EJS setup."
     return "YouTube rejected the download. Try a public video or another quality."
 
 

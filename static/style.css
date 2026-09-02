@@ -85,3 +85,40 @@ footer{background:rgba(4,20,58,.94);backdrop-filter:blur(14px)}
 @media(max-width:1050px){.tools{grid-template-columns:repeat(3,1fr)}}
 @media(max-width:700px){.tools{grid-template-columns:1fr 1fr}}
 @media(max-width:480px){.tools{grid-template-columns:1fr}}
+
+/* ConvertNest final visual cleanup */
+.sky-page{
+  min-height:100vh;
+  background:
+    radial-gradient(circle at 10% 10%, rgba(111,211,255,.32), transparent 30%),
+    radial-gradient(circle at 90% 18%, rgba(73,128,255,.22), transparent 32%),
+    linear-gradient(180deg,#dff7ff 0%,#eef9ff 45%,#f7fbff 100%);
+}
+.sky-scene{position:fixed;inset:0;z-index:-1;overflow:hidden;pointer-events:none;background:linear-gradient(180deg,rgba(65,181,255,.22),rgba(255,255,255,0))}
+.sky-glow{position:absolute;border-radius:50%;filter:blur(50px);animation:skyFloat 12s ease-in-out infinite alternate}
+.sky-glow-a{width:420px;height:420px;left:-120px;top:90px;background:rgba(31,151,255,.18)}
+.sky-glow-b{width:500px;height:500px;right:-160px;top:220px;background:rgba(91,33,182,.10);animation-delay:-4s}
+.cloud{position:absolute;width:320px;height:110px;border-radius:100px;background:rgba(255,255,255,.55);filter:blur(14px);animation:cloudDrift 26s linear infinite}
+.cloud-a{top:110px;left:-340px}.cloud-b{top:300px;left:45%;animation-duration:34s;opacity:.45}.cloud-c{top:65%;left:-360px;animation-duration:38s;opacity:.35}.cloud-d{top:78%;right:-350px;animation-duration:31s;opacity:.3}
+.stars{position:absolute;inset:0;opacity:.35;background-image:radial-gradient(#fff 1px,transparent 1.5px);background-size:85px 85px;animation:starMove 18s linear infinite}
+.float-orb{position:absolute;display:grid;place-items:center;border:1px solid rgba(255,255,255,.7);background:rgba(255,255,255,.24);backdrop-filter:blur(10px);box-shadow:0 20px 60px rgba(17,70,140,.12);color:#176cf0;font-weight:800;border-radius:20px;animation:orbFloat 7s ease-in-out infinite}
+.orb-a{right:12%;top:24%;width:70px;height:70px;font-size:25px}.orb-b{right:7%;top:60%;width:62px;height:62px;font-size:20px;animation-delay:-2s}.orb-c{left:4%;top:46%;width:68px;height:68px;font-size:12px;animation-delay:-4s}
+.sky-hero{min-height:620px;padding:78px 0 64px;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:56px}
+.hero-copy{max-width:610px}.hero-copy h1{font-size:clamp(48px,5.5vw,70px);line-height:.98;max-width:590px}.hero-copy p{max-width:560px}
+.youtube-hero-card{min-width:0;background:linear-gradient(145deg,rgba(8,65,145,.97),rgba(24,83,170,.96));border:1px solid rgba(255,255,255,.25);border-radius:28px;padding:30px;box-shadow:0 28px 80px rgba(12,65,140,.25);color:#fff;transition:transform .2s ease}
+.youtube-hero-card .url-input{background:rgba(4,37,88,.55);border-color:rgba(255,255,255,.18);color:#fff}.youtube-hero-card .url-input::placeholder{color:rgba(255,255,255,.62)}
+.youtube-hero-card .notice{color:rgba(255,255,255,.68)}.youtube-hero-card .yt-links a{color:#7dd3fc}
+.youtube-hero-card .yt-controls{display:grid;grid-template-columns:1fr 1fr;gap:10px;align-items:end}.youtube-hero-card .yt-submit{grid-column:1/-1}
+.download-ad{margin:0 0 34px;padding:18px 20px;border:1px solid rgba(23,108,240,.14);border-radius:18px;background:rgba(255,255,255,.82);box-shadow:0 10px 35px rgba(30,80,150,.07)}
+.download-ad[hidden]{display:none}.ad-label{text-align:center;color:#98a2b3;font-size:10px;letter-spacing:.16em;margin-bottom:10px}
+.section-heading{text-align:center;max-width:760px;margin:0 auto 32px}.section-heading h2{font-size:38px}.section-heading h2 span{background:linear-gradient(90deg,#176cf0,#5b21b6);-webkit-background-clip:text;color:transparent}
+.tools-section{padding:30px 0 80px}.tool-card{position:relative}.hot-tag{display:inline-block;font-size:9px;font-weight:900;letter-spacing:.12em;color:#176cf0;background:#e9f2ff;padding:5px 8px;border-radius:999px;margin-bottom:8px}.youtube-icon{background:#fff0f1;color:#e11d48}
+.sky-panel{background:rgba(255,255,255,.82);border:1px solid rgba(31,105,190,.10);border-radius:26px;padding:48px;box-shadow:0 18px 60px rgba(25,74,130,.07);backdrop-filter:blur(10px)}
+@keyframes skyFloat{to{transform:translate3d(30px,-20px,0) scale(1.06)}}@keyframes cloudDrift{from{transform:translateX(0)}to{transform:translateX(calc(100vw + 700px))}}@keyframes starMove{to{transform:translate3d(0,85px,0)}}@keyframes orbFloat{50%{transform:translateY(-12px) rotate(2deg)}}
+@media(max-width:850px){
+  .sky-hero{grid-template-columns:1fr;gap:30px;padding:50px 0}
+  .hero-copy h1{font-size:clamp(44px,11vw,62px)}
+  .youtube-hero-card{padding:22px}.youtube-hero-card .yt-controls{grid-template-columns:1fr}
+  .youtube-hero-card .yt-submit{grid-column:auto}
+  .float-orb{display:none}.sky-panel{padding:30px 22px}
+}
