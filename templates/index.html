@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>ConvertNest — YouTube to MP3 & MP4, PDF Maker & Online Converters</title>
-  <meta name="description" content="ConvertNest offers YouTube to MP3 and MP4 tools for eligible public videos, plus a free PDF Maker, PDF to JPG and JPG to PDF converters.">
+  <title>ConvertNest — YouTube to MP3 Converter, PDF Maker & Online Tools</title>
+  <meta name="description" content="ConvertNest offers a YouTube to MP3 converter for eligible public videos, plus a free PDF Maker, PDF to JPG and JPG to PDF converters.">
   <meta name="robots" content="index,follow,max-image-preview:large">
   <link rel="canonical" href="{{ site_url }}{{ url_for('index') }}">
   <meta name="theme-color" content="#0b5cff">
@@ -14,12 +14,12 @@
 
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="ConvertNest">
-  <meta property="og:title" content="ConvertNest — YouTube to MP3 & MP4, PDF Maker & Online Converters">
+  <meta property="og:title" content="ConvertNest — YouTube to MP3 Converter, PDF Maker & Online Tools">
   <meta property="og:description" content="Simple online YouTube, PDF and image conversion tools.">
   <meta property="og:url" content="{{ site_url }}{{ url_for('index') }}">
   <meta property="og:image" content="{{ site_url }}{{ url_for('static', filename='convert-nest-logo.webp') }}">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="ConvertNest — YouTube to MP3 & MP4, PDF Maker & Online Converters">
+  <meta name="twitter:title" content="ConvertNest — YouTube to MP3 Converter, PDF Maker & Online Tools">
   <meta name="twitter:description" content="Simple online YouTube, PDF and image conversion tools.">
   <meta name="twitter:image" content="{{ site_url }}{{ url_for('static', filename='convert-nest-logo.webp') }}">
 
@@ -59,7 +59,7 @@
       <div class="hero-copy">
         <div class="eyebrow pill-eyebrow">✦ FAST • SIMPLE • ONLINE</div>
         <h1 id="home-title">Convert anything.<br><span>Download what you need.</span></h1>
-        <p>One clean workspace for YouTube MP3/MP4, PDF Maker, PDF to JPG and JPG to PDF.</p>
+        <p>One clean workspace for YouTube MP3, PDF Maker, PDF to JPG and JPG to PDF.</p>
         <div class="hero-actions">
           <a class="primary" href="#youtube-tools">Start with YouTube →</a>
           <a class="secondary" href="#tools">Explore all tools</a>
@@ -76,10 +76,10 @@
           <div class="yt-logo">▶</div>
           <div>
             <div class="yt-kicker">YOUTUBE DOWNLOADER</div>
-            <h2>YouTube to <b>MP3</b> or <b>MP4</b></h2>
+            <h2>YouTube to <b>MP3</b></h2>
           </div>
         </div>
-        <p>Paste an eligible public YouTube link and choose audio or video.</p>
+        <p>Paste an eligible public YouTube link and convert the audio to MP3.</p>
         <form id="ytForm">
           <div class="yt-input-wrap">
             <span>🔗</span>
@@ -100,24 +100,8 @@
           {% else %}
           <div class="turnstile-missing">Human verification is not configured yet.</div>
           {% endif %}
-          <div class="yt-controls">
-            <label><span>Format</span>
-              <select name="mode" id="ytMode">
-                <option value="mp3" selected>Audio (MP3)</option>
-                <option value="video">Video (MP4)</option>
-              </select>
-            </label>
-            <label id="qualityWrap"><span>Quality</span>
-              <select name="quality">
-                <option value="360">360p</option>
-                <option value="480">480p</option>
-                <option value="720" selected>720p</option>
-                <option value="1080">1080p</option>
-                <option value="best">Best available</option>
-              </select>
-            </label>
-            <button class="primary yt-submit" type="submit">Download <span id="ytButtonLabel">MP3</span> →</button>
-          </div>
+          <input type="hidden" name="mode" value="mp3">
+          <button class="primary yt-submit" type="submit">Download MP3 →</button>
         </form>
         <div class="notice">Only download content you own or have permission to download, and follow YouTube's terms.</div>
         <div class="status" id="ytStatus" aria-live="polite"></div>
@@ -175,14 +159,14 @@
       <h2 id="how-title">Simple in three steps.</h2>
       <div class="steps">
         <div><b>01</b><strong>Paste or upload</strong><p>Give ConvertNest a YouTube link or your document/image file.</p></div>
-        <div><b>02</b><strong>Choose your format</strong><p>Pick MP3, MP4, JPG, or PDF depending on the tool.</p></div>
+        <div><b>02</b><strong>Choose your format</strong><p>Choose MP3, JPG, or PDF depending on the tool.</p></div>
         <div><b>03</b><strong>Download</strong><p>Get the processed result through a normal download.</p></div>
       </div>
     </section>
 
     <section class="seo-copy sky-panel" aria-labelledby="seo-title">
       <h2 id="seo-title">Free online converter tools for everyday tasks</h2>
-      <p>ConvertNest brings YouTube MP3 and MP4 tools, a PDF Maker, PDF to JPG, and JPG to PDF into one simple workspace. Use the <a href="{{ url_for('youtube_to_mp3_page') }}">YouTube to MP3 converter</a> or <a href="{{ url_for('youtube_downloader_page') }}">YouTube MP4 downloader</a> only for content you own or have permission to process.</p>
+      <p>ConvertNest brings a YouTube to MP3 converter, a PDF Maker, PDF to JPG, and JPG to PDF into one simple workspace. Use the <a href="{{ url_for('youtube_to_mp3_page') }}">YouTube to MP3 converter</a> only for content you own or have permission to process.</p>
       <p>Create PDFs from images with <a href="{{ url_for('pdf_maker_page') }}">PDF Maker</a>, or use the dedicated PDF and image conversion tools.</p>
     </section>
 
@@ -191,7 +175,6 @@
       <h2 id="faq-title">Common questions about ConvertNest</h2>
       <details><summary>Is ConvertNest free to use?</summary><p>Yes. The conversion tools are available without an account. Usage limits may apply.</p></details>
       <details><summary>Can I convert YouTube videos to MP3?</summary><p>The YouTube tool can process eligible public videos that you own or have permission to download. Restricted videos may not work.</p></details>
-      <details><summary>Can I download YouTube videos as MP4?</summary><p>Yes, for eligible public videos. Choose MP4 and an available quality, or use Best available.</p></details>
       <details><summary>Can I create a PDF from images?</summary><p>Yes. PDF Maker accepts JPG, JPEG, PNG, and WEBP images and combines them into one PDF.</p></details>
     </section>
   </main>

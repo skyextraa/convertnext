@@ -13,7 +13,6 @@ services:
       cd /opt/bgutil-ytdlp-pot-provider/server &&
       npm ci &&
       npx tsc &&
-      cd /opt/render/project/src &&
       pip install -r requirements.txt
     startCommand: >-
       bash start_render.sh

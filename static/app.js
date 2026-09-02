@@ -140,48 +140,34 @@ if (ytForm) {
 
     const form = e.target;
     const status = document.getElementById("ytStatus");
-    const meta = document.getElementById("ytMeta");
     const button = form.querySelector("button[type=submit]");
-    const mode =
-      form.querySelector("select[name=mode]")?.value ||
-      form.querySelector("input[name=mode]")?.value ||
-      "video";
 
     if (!status || !button) return;
 
-    status.textContent =
-      mode === "mp3"
-        ? "Preparing MP3… keep this tab open."
-        : "Preparing MP4… keep this tab open.";
+    const turnstileToken =
+      form.querySelector('input[name="cf-turnstile-response"]')?.value ||
+      window.convertNestTurnstileToken ||
+      "";
 
-    if (meta) meta.textContent = "";
-    button.disabled = true;
-
-    const turnstileToken = form.querySelector('input[name="cf-turnstile-response"]')?.value || window.convertNestTurnstileToken || "";
     if (!turnstileToken) {
       status.textContent = "Please complete the human verification first.";
-      button.disabled = false;
       return;
     }
 
+    status.textContent = "Preparing MP3… keep this tab open.";
+    button.disabled = true;
+
     try {
-      // Download directly instead of making a separate /info request first.
-      // This avoids an unnecessary second YouTube extraction request.
-      const endpoint = mode === "mp3" ? "/api/youtube/mp3" : "/api/youtube";
-      const res = await fetch(endpoint, {
+      const res = await fetch("/api/youtube/mp3", {
         method: "POST",
         body: new FormData(form)
       });
 
-      await downloadResponse(
-        res,
-        mode === "mp3" ? "youtube-audio.mp3" : "youtube-video.mp4"
-      );
-
-      status.textContent = "Done — your download has started.";
+      await downloadResponse(res, "youtube-audio.mp3");
+      status.textContent = "Done — your MP3 download has started.";
       showDownloadAd();
     } catch (err) {
-      status.textContent = err.message || "Download failed.";
+      status.textContent = err.message || "MP3 conversion failed.";
       window.convertNestTurnstileToken = "";
     } finally {
       button.disabled = false;
@@ -189,29 +175,7 @@ if (ytForm) {
   });
 }
 
-function updateYTMode() {
-  const mode = document.getElementById("ytMode");
-  const label = document.getElementById("ytButtonLabel");
-  const quality = document.getElementById("qualityWrap");
-  const submit = document.querySelector("#ytForm button[type=submit]");
-
-  if (!mode) return;
-
-  const mp3 = mode.value === "mp3";
-
-  if (label) label.textContent = mp3 ? "MP3" : "MP4";
-  if (quality) quality.style.display = mp3 ? "none" : "flex";
-  if (submit) submit.innerHTML = `Download <span id="ytButtonLabel">${mp3 ? "MP3" : "MP4"}</span> →`;
-}
-
 document.addEventListener("DOMContentLoaded", () => {
-  const mode = document.getElementById("ytMode");
-
-  if (mode) {
-    mode.addEventListener("change", updateYTMode);
-    updateYTMode();
-  }
-
   const card = document.querySelector(".youtube-hero-card");
 
   if (card && window.matchMedia("(pointer:fine)").matches) {

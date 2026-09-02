@@ -35,7 +35,7 @@ def verify_turnstile():
     token = request.form.get("cf-turnstile-response", "").strip()
 
     if not secret:
-        return False, "Turnstile is not configured on this server. Add TURNSTILE_SECRET_KEY in Render."
+        return False, "Turnstile is not configured on this server. Add TURNSTILE_SECRET_KEY in your hosting environment."
     if not token:
         return False, "Please complete the human verification before downloading."
 
@@ -186,7 +186,7 @@ def youtube_common_options():
     script_path = _pot_provider_script_path()
 
     youtube_args = {
-        "player_client": ["mweb", "web_safari", "android_vr", "web_embedded"],
+        "player_client": ["mweb", "web_safari", "web_embedded"],
         "fetch_pot": ["always"],
         "formats": ["missing_pot"],
         "pot_trace": ["true"],
@@ -389,24 +389,6 @@ SEO_PAGES = {
             {"q": "How many images can I combine?", "a": "The current PDF Maker accepts up to 30 images per PDF."}
         ],
     },
-    "youtube-video": {
-        "path": "/youtube-video-downloader",
-        "title": "YouTube Video Downloader — MP4 | ConvertNest",
-        "description": "Download eligible public YouTube videos as MP4 online. Choose a supported quality and save the video when you have permission to download it.",
-        "h1": "YouTube Video Downloader — MP4",
-        "intro": "Paste an eligible public YouTube URL and request an MP4 download in a supported quality. Restricted or unavailable videos may not work.",
-        "section_title": "Download eligible YouTube videos as MP4",
-        "paragraphs": [
-            "ConvertNest's YouTube video downloader is designed for public videos that you own or have permission to download. It supports selectable video quality and combines separate video and audio streams when required by the source format.",
-            "YouTube availability can vary by video, region, account requirements, and the formats exposed to the server. A video that is private, members-only, age-restricted, region-restricted, or otherwise unavailable may not be downloadable.",
-        ],
-        "steps": ["Copy the URL of an eligible YouTube video.", "Paste the URL and choose a video quality.", "Start the download and save the returned MP4 file."],
-        "faq": [
-            {"q": "Can I download any YouTube video?", "a": "No. The tool is intended for eligible public videos you own or have permission to download. Some videos and formats are restricted by YouTube."},
-            {"q": "What video qualities are available?", "a": "The interface offers 360p, 480p, 720p, 1080p, and Best available, subject to the formats available for the video."},
-            {"q": "Why can a YouTube download fail?", "a": "YouTube can restrict a video by privacy, region, age, membership, authentication, or available media formats."},
-        ],
-    },
     "youtube-mp3": {
         "path": "/youtube-to-mp3",
         "title": "YouTube to MP3 Converter — Free | ConvertNest",
@@ -462,11 +444,6 @@ def jpg_to_pdf_page():
 @app.get("/pdf-maker")
 def pdf_maker_page():
     return render_tool_page("pdf-maker")
-
-
-@app.get("/youtube-video-downloader")
-def youtube_downloader_page():
-    return render_tool_page("youtube-video")
 
 
 @app.get("/youtube-to-mp3")
@@ -573,88 +550,6 @@ def jpg_to_pdf():
     except Exception as e:
         cleanup(job)
         return jsonify(error=f"Could not create PDF: {e}"), 500
-
-
-@app.post("/api/youtube/info")
-def youtube_info():
-    verified, verification_error = verify_turnstile()
-    if not verified:
-        return jsonify(error=verification_error), 403
-
-    url = request.form.get("url", "").strip()
-    if not YOUTUBE_RE.match(url):
-        return jsonify(error="Enter a valid YouTube URL."), 400
-
-    try:
-        info = extract_youtube_info(url, download=False)
-        duration = int(info.get("duration") or 0)
-        if duration > 2 * 60 * 60:
-            return jsonify(error="This site currently limits YouTube downloads to 2 hours."), 400
-
-        return jsonify({
-            "title": info.get("title") or "YouTube video",
-            "duration": duration,
-            "thumbnail": info.get("thumbnail"),
-        })
-    except yt_dlp.utils.DownloadError as e:
-        return jsonify(error=youtube_error_message(e)), 400
-    except Exception:
-        return jsonify(error="YouTube could not provide this video. It may be private, restricted, or temporarily unavailable."), 400
-
-
-@app.post("/api/youtube")
-def youtube_download():
-    verified, verification_error = verify_turnstile()
-    if not verified:
-        return jsonify(error=verification_error), 403
-
-    url = request.form.get("url", "").strip()
-    quality = request.form.get("quality", "720").strip()
-    if not YOUTUBE_RE.match(url):
-        return jsonify(error="Enter a valid YouTube URL."), 400
-    if quality not in {"360", "480", "720", "1080", "best"}:
-        return jsonify(error="Invalid video quality."), 400
-
-    job = BASE / uuid.uuid4().hex
-    job.mkdir()
-
-    height = "best" if quality == "best" else quality
-    if height == "best":
-        fmt = "bv*[ext=mp4]+ba[ext=m4a]/bv*+ba/b[ext=mp4]/b"
-    else:
-        fmt = f"bv*[height<={height}][ext=mp4]+ba[ext=m4a]/bv*[height<={height}]+ba/b[height<={height}][ext=mp4]/b[height<={height}]/b"
-
-    opts = youtube_common_options()
-    opts.update({
-        "outtmpl": str(job / "%(title).120s.%(ext)s"),
-        "format": fmt,
-        "merge_output_format": "mp4",
-        "max_filesize": 1024 * 1024 * 1024,
-    })
-
-    try:
-        info = download_youtube_with_fallbacks(
-            url,
-            opts,
-            ["mweb", "web_safari", "web_embedded"],
-        )
-        base = safe_media_name(info, "youtube-video")
-
-        media = next((p for p in job.iterdir() if p.is_file() and p.suffix.lower() == ".mp4"), None)
-        if media is None:
-            media = next((p for p in job.iterdir() if p.is_file()), None)
-        if media is None or not media.exists():
-            raise RuntimeError("No media file was produced.")
-
-        response = send_file(media, as_attachment=True, download_name=f"{base}.mp4", mimetype="video/mp4")
-        response.call_on_close(lambda: cleanup(job))
-        return response
-    except yt_dlp.utils.DownloadError as e:
-        cleanup(job)
-        return jsonify(error=youtube_error_message(e)), 400
-    except Exception:
-        cleanup(job)
-        return jsonify(error="Download failed. The video may be unavailable or unsupported."), 500
 
 
 @app.post("/api/youtube/mp3")
