@@ -227,3 +227,5 @@ footer{background:rgba(16,32,95,.92);backdrop-filter:blur(14px);-webkit-backdrop
 @keyframes sunFloat{50%{transform:translateY(10px) rotate(5deg)}}
 @keyframes sparkleFloat{50%{transform:translateY(-15px);opacity:.55}}
 footer{background:#ffffffb8!important;backdrop-filter:blur(12px)!important}
+
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:14px 0}.two-col label,.tool-panel>form>label:not(.dropzone):not(.check-row):not(.quality-row){display:flex;flex-direction:column;gap:7px;font-weight:600}.two-col input,.tool-panel select,.tool-panel input[type=number]{width:100%;box-sizing:border-box;padding:12px 13px;border:1px solid rgba(80,100,140,.2);border-radius:12px;background:rgba(255,255,255,.8);font:inherit}.check-row{display:flex;align-items:center;gap:8px;margin:12px 0}.tool-note{font-size:.9rem;opacity:.72;margin:12px 0;line-height:1.5}.tool-panel select{margin:7px 0 12px}@media(max-width:600px){.two-col{grid-template-columns:1fr}}

@@ -62,3 +62,23 @@ document.querySelectorAll('.interactive-card').forEach(card => {
   card.addEventListener('pointermove', e => { const r=card.getBoundingClientRect(), x=(e.clientX-r.left)/r.width-.5, y=(e.clientY-r.top)/r.height-.5; card.style.transform=`perspective(1000px) rotateY(${x*2}deg) rotateX(${-y*1.5}deg) translateY(-3px)`; });
   card.addEventListener('pointerleave', () => card.style.transform='');
 });
+
+function bindSimpleImageTool(prefix, endpoint, statusId, fallback) {
+  const form = document.getElementById(prefix + 'Form');
+  if (!form) return;
+  const input = document.getElementById(prefix + 'Input');
+  const name = document.getElementById(prefix + 'Name');
+  const zone = document.getElementById(prefix + 'Drop');
+  if (input && name && zone) bindDrop(prefix + 'Drop', prefix + 'Input', prefix + 'Name');
+  form.addEventListener('submit', e => { e.preventDefault(); submitForm(e.target, endpoint, statusId, fallback); });
+}
+
+bindSimpleImageTool('resize', '/api/image-resize', 'resizeStatus', 'resized-image.jpg');
+bindSimpleImageTool('enhance', '/api/image-enhance', 'enhanceStatus', 'enhanced-image.png');
+
+const resizeQuality = document.getElementById('resizeQuality');
+const resizeQualityValue = document.getElementById('resizeQualityValue');
+if (resizeQuality && resizeQualityValue) resizeQuality.addEventListener('input', () => resizeQualityValue.value = resizeQuality.value);
+const enhanceQuality = document.getElementById('enhanceQuality');
+const enhanceQualityValue = document.getElementById('enhanceQualityValue');
+if (enhanceQuality && enhanceQualityValue) enhanceQuality.addEventListener('input', () => enhanceQualityValue.value = enhanceQuality.value);

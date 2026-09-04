@@ -36,6 +36,42 @@ SEO_PAGES = {
             {'q': 'Can I convert multiple images?', 'a': 'Yes. Up to 30 supported images can be converted in one job.'},
         ],
     },
+    'image-resizer': {
+        'path': '/image-resizer',
+        'title': 'Image Resizer Online — Resize JPG, PNG & WEBP Free | ConvertNest',
+        'description': 'Resize JPG, PNG and WEBP images online for free. Set a custom width or height, keep the aspect ratio, and download resized images.',
+        'h1': 'Image Resizer',
+        'intro': 'Resize JPG, PNG and WEBP images online for free. Choose a width or height, keep the aspect ratio, and resize multiple images in one go.',
+        'section_title': 'Resize images online',
+        'paragraphs': [
+            'ConvertNest Image Resizer lets you change image dimensions without installing desktop software. Enter a target width or height and optionally keep the original aspect ratio.',
+            'You can resize multiple supported images in one request. When more than one image is processed, the results are packaged into a ZIP download.'
+        ],
+        'steps': ['Choose one or more JPG, PNG or WEBP images.', 'Enter a target width or height and choose whether to keep the aspect ratio.', 'Resize and download the result or ZIP.'],
+        'faq': [
+            {'q': 'Can I resize JPG, PNG and WEBP images?', 'a': 'Yes. ConvertNest supports JPG, JPEG, PNG and WEBP images.'},
+            {'q': 'Can I keep the aspect ratio?', 'a': 'Yes. Keep aspect ratio is enabled by default so the image is not stretched.'},
+            {'q': 'Can I resize multiple images?', 'a': 'Yes. Up to 30 supported images can be resized in one job.'},
+        ],
+    },
+    'image-enhancer': {
+        'path': '/image-quality-enhancer',
+        'title': 'Image Quality Enhancer Online — Improve JPG, PNG & WEBP Free | ConvertNest',
+        'description': 'Improve image quality online for free with resizing, sharpening and contrast enhancement. Enhance JPG, PNG and WEBP images in your browser.',
+        'h1': 'Image Quality Enhancer',
+        'intro': 'Improve the appearance of JPG, PNG and WEBP images with optional 2× upscaling, sharpening and contrast enhancement.',
+        'section_title': 'Improve image quality online',
+        'paragraphs': [
+            'ConvertNest Image Quality Enhancer applies practical image-processing improvements such as upscaling, sharpening and contrast adjustment. It can make an image look cleaner and more defined, but it cannot recreate detail that was never captured.',
+            'For best results, start with the highest-quality original image available. You can process multiple supported images in one request and download the results together as a ZIP.'
+        ],
+        'steps': ['Choose one or more JPG, PNG or WEBP images.', 'Select the scale and enhancement strength.', 'Enhance and download the improved image or ZIP.'],
+        'faq': [
+            {'q': 'Does this use AI to restore missing details?', 'a': 'No. The current enhancer uses image-processing techniques such as high-quality resizing, sharpening and contrast enhancement. It does not generate missing details like an AI super-resolution model.'},
+            {'q': 'Can I upscale an image 2×?', 'a': 'Yes. Choose 2× scale to increase both width and height by two times.'},
+            {'q': 'Which image formats are supported?', 'a': 'JPG, JPEG, PNG and WEBP are supported.'},
+        ],
+    },
     'pdf-converter': {
         'path': '/pdf-converter',
         'title': 'PDF to JPG Converter & JPG to PDF Online — Free | ConvertNest',
@@ -103,6 +139,12 @@ def render_tool_page(kind):
 @app.get('/image-converter')
 def image_converter_page(): return render_tool_page('image-converter')
 
+@app.get('/image-resizer')
+def image_resizer_page(): return render_tool_page('image-resizer')
+
+@app.get('/image-quality-enhancer')
+def image_enhancer_page(): return render_tool_page('image-enhancer')
+
 @app.get('/pdf-converter')
 def pdf_converter_page(): return render_tool_page('pdf-converter')
 
@@ -122,7 +164,7 @@ def robots_txt():
 
 @app.get('/sitemap.xml')
 def sitemap_xml():
-    pages = ['/', '/image-converter', '/pdf-converter', '/faq', '/about', '/contact', '/privacy', '/terms']
+    pages = ['/', '/image-converter', '/image-resizer', '/image-quality-enhancer', '/pdf-converter', '/faq', '/about', '/contact', '/privacy', '/terms']
     body = ['<?xml version="1.0" encoding="UTF-8"?>', '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">']
     for path in pages:
         body.append(f'<url><loc>{current_site_url()}{path}</loc></url>')
@@ -207,6 +249,99 @@ def image_convert():
         response.call_on_close(lambda: cleanup(job)); return response
     except Exception:
         cleanup(job); return jsonify(error='Could not convert the image(s). Please check that the files are valid.'), 500
+
+@app.post('/api/image-resize')
+def image_resize():
+    files = request.files.getlist('files')
+    try: width = int(request.form.get('width', '0') or 0)
+    except ValueError: width = 0
+    try: height = int(request.form.get('height', '0') or 0)
+    except ValueError: height = 0
+    keep = request.form.get('keep_aspect', 'on') in {'on','true','1','yes'}
+    try: quality = max(1, min(100, int(request.form.get('quality', '90'))))
+    except ValueError: quality = 90
+    if not width and not height: return jsonify(error='Enter a width or height.'), 400
+    if width and (width < 1 or width > 10000): return jsonify(error='Width must be between 1 and 10000 pixels.'), 400
+    if height and (height < 1 or height > 10000): return jsonify(error='Height must be between 1 and 10000 pixels.'), 400
+    valid = [f for f in files if f and f.filename and Path(f.filename).suffix.lower().lstrip('.') in ALLOWED_IMAGES]
+    if not valid: return jsonify(error='Upload one or more JPG, JPEG, PNG or WEBP images.'), 400
+    if len(valid) > 30: return jsonify(error='Maximum 30 images per resize.'), 400
+    job = BASE / uuid.uuid4().hex; job.mkdir(); outputs=[]
+    try:
+        for i, upload in enumerate(valid,1):
+            safe=secure_filename(upload.filename) or f'image-{i}'
+            src=job / f'source-{i}{Path(safe).suffix.lower()}'; upload.save(src)
+            with Image.open(src) as im:
+                ow, oh = im.size
+                if keep:
+                    if width and height:
+                        scale=min(width/ow, height/oh); nw=max(1, round(ow*scale)); nh=max(1, round(oh*scale))
+                    elif width:
+                        nw=width; nh=max(1, round(oh*(width/ow)))
+                    else:
+                        nh=height; nw=max(1, round(ow*(height/oh)))
+                else:
+                    nw=width or ow; nh=height or oh
+                resized=im.resize((nw,nh), Image.Resampling.LANCZOS)
+                ext=Path(safe).suffix.lower()
+                stem=Path(safe).stem or f'image-{i}'
+                if ext in {'.jpg','.jpeg'}:
+                    out=job/f'{stem}-resized.jpg'; resized.convert('RGB').save(out,'JPEG',quality=quality,optimize=True)
+                elif ext=='.webp':
+                    out=job/f'{stem}-resized.webp'; resized.save(out,'WEBP',quality=quality,method=6)
+                else:
+                    out=job/f'{stem}-resized.png'; resized.save(out,'PNG',optimize=True)
+                resized.close(); outputs.append(out)
+        if len(outputs)==1:
+            ext=outputs[0].suffix.lower(); mime={'jpg':'image/jpeg','jpeg':'image/jpeg','png':'image/png','webp':'image/webp'}[ext.lstrip('.')]
+            response=send_file(outputs[0],as_attachment=True,download_name=outputs[0].name,mimetype=mime)
+        else:
+            zip_path=job/'resized-images.zip'
+            with zipfile.ZipFile(zip_path,'w',zipfile.ZIP_DEFLATED) as z:
+                for pth in outputs: z.write(pth,pth.name)
+            response=send_file(zip_path,as_attachment=True,download_name=zip_path.name,mimetype='application/zip')
+        response.call_on_close(lambda: cleanup(job)); return response
+    except Exception:
+        cleanup(job); return jsonify(error='Could not resize the image(s). Please check that the files are valid.'), 500
+
+@app.post('/api/image-enhance')
+def image_enhance():
+    files=request.files.getlist('files')
+    scale=request.form.get('scale','2').strip()
+    strength=request.form.get('strength','medium').strip().lower()
+    try: quality=max(1,min(100,int(request.form.get('quality','92'))))
+    except ValueError: quality=92
+    if scale not in {'1','2'}: return jsonify(error='Choose a 1× or 2× enhancement scale.'),400
+    if strength not in {'light','medium','strong'}: return jsonify(error='Choose a valid enhancement strength.'),400
+    valid=[f for f in files if f and f.filename and Path(f.filename).suffix.lower().lstrip('.') in ALLOWED_IMAGES]
+    if not valid: return jsonify(error='Upload one or more JPG, JPEG, PNG or WEBP images.'),400
+    if len(valid)>30: return jsonify(error='Maximum 30 images per enhancement.'),400
+    job=BASE/uuid.uuid4().hex; job.mkdir(); outputs=[]
+    params={'light':(1.12,1.15),'medium':(1.22,1.35),'strong':(1.32,1.65)}
+    contrast_factor, sharpness_factor=params[strength]
+    try:
+        for i,upload in enumerate(valid,1):
+            safe=secure_filename(upload.filename) or f'image-{i}'
+            src=job/f'source-{i}{Path(safe).suffix.lower()}'; upload.save(src)
+            with Image.open(src) as im:
+                im=im.convert('RGBA') if im.mode in ('RGBA','LA') or (im.mode=='P' and 'transparency' in im.info) else im.convert('RGB')
+                if scale=='2': im=im.resize((im.width*2,im.height*2),Image.Resampling.LANCZOS)
+                from PIL import ImageEnhance, ImageFilter
+                im=ImageEnhance.Contrast(im).enhance(contrast_factor)
+                im=ImageEnhance.Sharpness(im).enhance(sharpness_factor)
+                im=im.filter(ImageFilter.UnsharpMask(radius=1.4 if scale=='2' else 1.0,percent=115 if strength=='strong' else 90,threshold=3))
+                stem=Path(safe).stem or f'image-{i}'
+                out=job/f'{stem}-enhanced.png'; im.save(out,'PNG',optimize=True); im.close(); outputs.append(out)
+        if len(outputs)==1:
+            response=send_file(outputs[0],as_attachment=True,download_name=outputs[0].name,mimetype='image/png')
+        else:
+            zip_path=job/'enhanced-images.zip'
+            with zipfile.ZipFile(zip_path,'w',zipfile.ZIP_DEFLATED) as z:
+                for pth in outputs: z.write(pth,pth.name)
+            response=send_file(zip_path,as_attachment=True,download_name=zip_path.name,mimetype='application/zip')
+        response.call_on_close(lambda: cleanup(job)); return response
+    except Exception:
+        cleanup(job); return jsonify(error='Could not enhance the image(s). Please check that the files are valid.'),500
 
 @app.post('/api/pdf-convert')
 def pdf_convert():
