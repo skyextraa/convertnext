@@ -1,0 +1,18 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>{{ page_title }}</title>
+<meta name="description" content="{{ meta_description }}">
+<meta name="robots" content="index,follow,max-image-preview:large">
+<link rel="canonical" href="{{ site_url }}{{ request.path }}">
+<link rel="icon" type="image/png" href="{{ url_for('static',filename='convert-nest-mark.png') }}">
+<link rel="stylesheet" href="{{ url_for('static',filename='style.css') }}">
+</head>
+<body>
+<header class="topbar"><a class="brand" href="{{ url_for('index') }}"><img src="{{ url_for('static',filename='convert-nest-logo.webp') }}" alt="ConvertNest"></a><nav><a href="{{ url_for('index') }}#tools">Tools</a><a href="{{ url_for('faq_page') }}">FAQ</a><a href="{{ url_for('about_page') }}">About</a></nav></header>
+<main><div class="breadcrumbs"><a href="{{ url_for('index') }}">ConvertNest</a><span>›</span><span>{{ heading }}</span></div>
+<section class="seo-copy"><div class="eyebrow">CONVERTNEST</div><h1>{{ heading }}</h1>{% for title, text in sections %}<h2>{{ title }}</h2><p>{{ text }}</p>{% endfor %}</section>
+</main><footer><div><strong>ConvertNest</strong><span>Simple online conversion tools.</span></div><div><span>© 2026 ConvertNest</span><span><a href="{{ url_for('privacy_page') }}">Privacy</a> · <a href="{{ url_for('terms_page') }}">Terms</a> · <a href="{{ url_for('contact_page') }}">Contact</a></span></div></footer>
+</body></html>

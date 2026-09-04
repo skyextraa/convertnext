@@ -20,10 +20,10 @@ SITE_NAME = 'ConvertNest'
 SEO_PAGES = {
     'image-converter': {
         'path': '/image-converter',
-        'title': 'JPG to PNG & PNG to JPG Converter Online — Free | ConvertNest',
-        'description': 'Convert JPG, JPEG, PNG and WEBP images to PNG or JPEG online for free. Change the output format and quality in one tool.',
-        'h1': 'JPG ↔ PNG Image Converter',
-        'intro': 'Switch between PNG and JPEG in one clean converter. Upload one or many JPG, PNG or WEBP images and choose your output format.',
+        'title': 'JPG to PNG Converter & PNG to JPG Online — Free | ConvertNest',
+        'description': 'Convert JPG to PNG or PNG to JPG online for free. Convert JPEG and WEBP images too, with quality controls and batch conversion.',
+        'h1': 'JPG to PNG & PNG to JPG Converter',
+        'intro': 'Convert JPG to PNG or PNG to JPG online for free. Upload one or multiple JPG, JPEG, PNG or WEBP images and choose your output format.',
         'section_title': 'Change image format online',
         'paragraphs': [
             'ConvertNest lets you change common image formats without installing desktop software. Choose PNG or JPEG as the output format and convert one or multiple images in the same tool.',
@@ -38,10 +38,10 @@ SEO_PAGES = {
     },
     'pdf-converter': {
         'path': '/pdf-converter',
-        'title': 'PDF ↔ JPG Converter Online — Free | ConvertNest',
-        'description': 'Convert PDF to JPG or JPG, PNG and WEBP images to PDF in one free online converter.',
-        'h1': 'PDF ↔ JPG Converter',
-        'intro': 'One PDF tool, two directions. Switch between PDF to JPG and images to PDF without opening a different converter.',
+        'title': 'PDF to JPG Converter & JPG to PDF Online — Free | ConvertNest',
+        'description': 'Convert PDF to JPG online for free, or turn JPG, PNG and WEBP images into a PDF. Simple browser-based PDF conversion.',
+        'h1': 'PDF to JPG & JPG to PDF Converter',
+        'intro': 'Convert PDF pages to JPG, or combine JPG, PNG and WEBP images into a PDF. Use both conversion directions in one simple tool.',
         'section_title': 'Convert PDF and images in either direction',
         'paragraphs': [
             'Convert a PDF into JPG page images, or combine JPG, PNG and WEBP images into a single PDF. The direction is controlled by one simple switch.',
@@ -72,9 +72,20 @@ def cleanup(path):
         pass
 
 def schema_for(seo):
+    base = current_site_url()
+    faq_entities = [
+        {'@type': 'Question', 'name': item['q'], 'acceptedAnswer': {'@type': 'Answer', 'text': item['a']}}
+        for item in seo.get('faq', [])
+    ]
     return {'@context': 'https://schema.org', '@graph': [
-        {'@type': 'WebSite', 'url': current_site_url() + '/', 'name': SITE_NAME, 'description': 'Free online image and PDF conversion tools.'},
-        {'@type': 'SoftwareApplication', 'name': seo['h1'], 'url': current_site_url() + seo['path'], 'applicationCategory': 'UtilitiesApplication', 'operatingSystem': 'Web', 'offers': {'@type': 'Offer', 'price': '0', 'priceCurrency': 'USD'}, 'description': seo['description']}
+        {'@type': 'WebSite', 'url': base + '/', 'name': SITE_NAME, 'description': 'Free online JPG, PNG, WEBP and PDF conversion tools.'},
+        {'@type': 'WebPage', 'url': base + seo['path'], 'name': seo['title'], 'description': seo['description']},
+        {'@type': 'SoftwareApplication', 'name': seo['h1'], 'url': base + seo['path'], 'applicationCategory': 'UtilitiesApplication', 'operatingSystem': 'Web', 'offers': {'@type': 'Offer', 'price': '0', 'priceCurrency': 'USD'}, 'description': seo['description']},
+        {'@type': 'BreadcrumbList', 'itemListElement': [
+            {'@type': 'ListItem', 'position': 1, 'name': 'ConvertNest', 'item': base + '/'},
+            {'@type': 'ListItem', 'position': 2, 'name': seo['h1'], 'item': base + seo['path']}
+        ]},
+        {'@type': 'FAQPage', 'mainEntity': faq_entities}
     ]}
 
 @app.get('/')
@@ -111,11 +122,55 @@ def robots_txt():
 
 @app.get('/sitemap.xml')
 def sitemap_xml():
+    pages = ['/', '/image-converter', '/pdf-converter', '/faq', '/about', '/contact', '/privacy', '/terms']
     body = ['<?xml version="1.0" encoding="UTF-8"?>', '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">']
-    for path in ['/','/image-converter','/pdf-converter']:
+    for path in pages:
         body.append(f'<url><loc>{current_site_url()}{path}</loc></url>')
     body.append('</urlset>')
     return Response('\n'.join(body), mimetype='application/xml')
+
+
+@app.get('/about')
+def about_page():
+    return render_template('info_page.html', page_title='About ConvertNest', meta_description='Learn about ConvertNest, a simple collection of free online image and PDF conversion tools.', heading='About ConvertNest', sections=[
+        ('Simple online file conversion', 'ConvertNest provides straightforward browser-based tools for common image and PDF conversions. The goal is to make routine file conversion quick and easy without requiring desktop software.'),
+        ('Supported conversions', 'Convert JPG to PNG, PNG to JPG, JPG and other supported images to PDF, and PDF pages to JPG. Batch image conversion is supported within the published limits.'),
+        ('Privacy-minded design', 'Files are processed for the conversion request and temporary conversion data is cleaned up after the response where applicable. Do not upload confidential files unless you are comfortable using an online conversion service.')
+    ])
+
+@app.get('/faq')
+def faq_page():
+    return render_template('info_page.html', page_title='ConvertNest FAQ', meta_description='Answers to common questions about JPG, PNG, PDF and image conversion on ConvertNest.', heading='Frequently Asked Questions', sections=[
+        ('Is ConvertNest free?', 'Yes. The conversion tools currently available on ConvertNest are free to use and do not require an account.'),
+        ('Can I convert JPG to PNG?', 'Yes. Open the Image Converter and choose PNG as the output format.'),
+        ('Can I convert PNG to JPG?', 'Yes. Choose JPEG as the output format. Transparent areas are placed on a white background because JPEG does not support transparency.'),
+        ('Can I convert PDF to JPG?', 'Yes. Open the PDF Converter, choose PDF to JPG, and upload your PDF.'),
+        ('Can I convert JPG to PDF?', 'Yes. Choose Images to PDF and upload one or more JPG, PNG or WEBP images.'),
+        ('Is there a file limit?', 'The application enforces upload, image-count and PDF-page limits to keep the service reliable.')
+    ])
+
+@app.get('/contact')
+def contact_page():
+    return render_template('info_page.html', page_title='Contact ConvertNest', meta_description='Contact ConvertNest for questions, feedback, bug reports and website issues.', heading='Contact ConvertNest', sections=[
+        ('Questions and feedback', 'If a converter is not working as expected, report the conversion type, file type, browser and a short description of the problem.'),
+        ('Important', 'Do not send passwords, payment-card information, private keys or other sensitive information in a support message.')
+    ])
+
+@app.get('/privacy')
+def privacy_page():
+    return render_template('info_page.html', page_title='Privacy Policy — ConvertNest', meta_description='Read the ConvertNest privacy information for online image and PDF conversion tools.', heading='Privacy Policy', sections=[
+        ('File processing', 'Files uploaded for conversion are handled temporarily for the requested conversion. Temporary conversion data is cleaned up after the response where applicable.'),
+        ('Cookies and advertising', 'ConvertNest may use third-party advertising technology. Advertising providers may use cookies or similar technologies subject to their own policies and applicable consent requirements.'),
+        ('Your responsibility', 'Do not upload confidential or sensitive files unless you understand and accept the risks of using an online conversion service.')
+    ])
+
+@app.get('/terms')
+def terms_page():
+    return render_template('info_page.html', page_title='Terms of Use — ConvertNest', meta_description='Read the ConvertNest terms of use for the online conversion tools.', heading='Terms of Use', sections=[
+        ('Use of the service', 'Use ConvertNest only for lawful files and purposes. You are responsible for having the rights and permissions needed to upload and convert files.'),
+        ('No guarantee', 'Conversion results can vary by file, format and browser. The service is provided without a guarantee that every file will convert successfully.'),
+        ('Limits', 'The application may enforce file, page and batch limits to protect service reliability.')
+    ])
 
 @app.post('/api/image-convert')
 def image_convert():
